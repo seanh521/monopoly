@@ -75,7 +75,7 @@ io.on('connection', function (socket){
     socket.on('disconnect', function(){
         if (usersSockets[socket.request.connection.remoteAddress]) {
             console.log(usersSockets[socket.request.connection.remoteAddress] + ' user disconnected');
-            delete users[usersSockets[socket.request.connection.remoteAddress]]
+            delete users[usersSockets[socket.request.connection.remoteAddress]];
             delete usersSockets[socket.request.connection.remoteAddress];
             console.log (usersSockets);
             console.log (users);
