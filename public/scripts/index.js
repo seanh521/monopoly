@@ -20,7 +20,11 @@ socket.on ("nameConfirmation", function (data) {
         $("#selectGameButton").on("click", selectGameClick);
         $("#createGameButton").on("click", createGameClick);
     }, 500);
-})
+});
+
+socket.on ("welcomeToGame", function (data){
+    console.log (data);
+});
 
 function joinGameClick () {
     socket.emit ("gameSelect", "Join");

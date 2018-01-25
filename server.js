@@ -41,8 +41,9 @@ function createNewPlayer (name, socket) {
 
 function createNewGame (name, maxPlayers, isLocked, password) {
     var game = {};
-    game.players = {};
+    //game.players = {};
     game.name = "Game_" + name;
+    game.players = [];
     if (typeof (maxPlayers) == "undefined") {
         game.maxPlayers = 8;
     }
@@ -64,7 +65,12 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     }
 
     game.join = function (name, socket) {
-        game.players[name] = (createNewPlayer(name, socket));     
+        //game.players[name] = (createNewPlayer(name, socket)); 
+        game.players.push(createNewPlayer(name, socket));    
+    }
+
+    game.getPlayers = function () {
+        return game.players;
     }
 
     return game;
@@ -77,6 +83,9 @@ io.on('connection', function (socket){
             console.log(usersSockets[socket.request.connection.remoteAddress] + ' user disconnected');
             delete users[usersSockets[socket.request.connection.remoteAddress]];
             delete usersSockets[socket.request.connection.remoteAddress];
+
+            //Make method in player to remove certain players on disconnect
+
             console.log (usersSockets);
             console.log (users);
         }
@@ -116,4 +125,17 @@ function joinGame (socket) {
     onlinePlayers[usersSockets[socket]].currentGameID = freeGames[0];
     console.log(games);
     console.log (onlinePlayers);
+    broadcastToPlayers(freeGames[0]);
+}
+
+function broadcastToPlayers (gameID) {
+    games[gameID].getPlayers().forEach(element => {
+        console.log(element); //Issue is that it returns an object reference not a player object   
+        var clientName = element["name"];
+        console.log (clientName);
+        //clientSocket.emit("welcomeToGame", "Welcome to the game");
+        //io.sockets.socket(element["socket"]).emit("welcomeToGame", "Welcome to the game");
+        //io.to
+        io.to(users[clientName]).emit("nameConfirmation", "Welcome to the game scrubz");
+    });
 }
