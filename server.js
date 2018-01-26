@@ -57,12 +57,6 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     }
 
     game.isFull = false;
-    
-    game.addNewPlayer = function (player) {
-        // game.players [player[0]] = 
-        //create new player object or make a player object on connection and add it to the users in an array with their socket
-        console.log ("Decide on architecture");
-    }
 
     game.join = function (name, socket) {
         //game.players[name] = (createNewPlayer(name, socket)); 
