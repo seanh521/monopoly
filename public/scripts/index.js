@@ -26,6 +26,10 @@ socket.on ("welcomeToGame", function (data){
     console.log (data);
 });
 
+socket.on ("returnGame", function (data){
+    console.log ("Game ID: " + data[0] + "\nPlayers: " + data[1]);
+});
+
 function joinGameClick () {
     socket.emit ("gameSelect", "Join");
 }

@@ -119,7 +119,9 @@ function joinGame (socket) {
     onlinePlayers[usersSockets[socket]].currentGameID = freeGames[0];
     console.log(games);
     console.log (onlinePlayers);
-    broadcastToPlayers(freeGames[0]);
+   // broadcastToPlayers(freeGames[0]);
+   var data = [freeGames[0], games[freeGames[0]].getPlayers()];
+   socket.emit("returnGame", data);
 }
 
 function broadcastToPlayers (gameID) {
