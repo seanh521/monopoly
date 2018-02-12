@@ -1,0 +1,321 @@
+Listening on *:56630
+{ '[object Object]': 'davidj' }
+{ davidj: 
+   Socket {
+     nsp: 
+      Namespace {
+        name: '/',
+        server: [Object],
+        sockets: [Object],
+        connected: [Object],
+        fns: [],
+        ids: 0,
+        rooms: [],
+        flags: {},
+        adapter: [Object],
+        _events: [Object],
+        _eventsCount: 1 },
+     server: 
+      Server {
+        nsps: [Object],
+        _path: '/socket.io',
+        _serveClient: true,
+        parser: [Object],
+        encoder: Encoder {},
+        _adapter: [Function: Adapter],
+        _origins: '*:*',
+        sockets: [Object],
+        eio: [Object],
+        httpServer: [Object],
+        engine: [Object] },
+     adapter: 
+      Adapter {
+        nsp: [Object],
+        rooms: [Object],
+        sids: [Object],
+        encoder: Encoder {} },
+     id: 'y5aOlvxiR4umCxcLAAAC',
+     client: 
+      Client {
+        server: [Object],
+        conn: [Object],
+        encoder: Encoder {},
+        decoder: [Object],
+        id: 'y5aOlvxiR4umCxcLAAAC',
+        request: [Object],
+        onclose: [Function: bound ],
+        ondata: [Function: bound ],
+        onerror: [Function: bound ],
+        ondecoded: [Function: bound ],
+        sockets: [Object],
+        nsps: [Object],
+        connectBuffer: [] },
+     conn: 
+      Socket {
+        id: 'y5aOlvxiR4umCxcLAAAC',
+        server: [Object],
+        upgrading: false,
+        upgraded: true,
+        readyState: 'open',
+        writeBuffer: [],
+        packetsFn: [],
+        sentCallbackFn: [],
+        cleanupFn: [Array],
+        request: [Object],
+        remoteAddress: '::ffff:213.233.132.171',
+        checkIntervalTimer: null,
+        upgradeTimeoutTimer: null,
+        pingTimeoutTimer: [Object],
+        transport: [Object],
+        _events: [Object],
+        _eventsCount: 3 },
+     rooms: { y5aOlvxiR4umCxcLAAAC: 'y5aOlvxiR4umCxcLAAAC' },
+     acks: {},
+     connected: true,
+     disconnected: false,
+     handshake: 
+      { headers: [Object],
+        time: 'Wed Jan 31 2018 16:41:06 GMT+0100 (CET)',
+        address: '::ffff:213.233.132.171',
+        xdomain: false,
+        secure: false,
+        issued: 1517413266247,
+        url: '/socket.io/?EIO=3&transport=polling&t=M5CuFAL',
+        query: [Object] },
+     fns: [],
+     flags: {},
+     _rooms: [],
+     _events: 
+      { disconnect: [Function],
+        setName: [Function],
+        gameSelect: [Function] },
+     _eventsCount: 3 } }
+davidj has joined at IP: ::ffff:213.233.132.171
+{ Game_iziwnwsl4: 
+   { name: 'Game_iziwnwsl4',
+     players: [],
+     maxPlayers: 8,
+     isFull: false,
+     join: [Function],
+     getPlayers: [Function],
+     removePlayer: [Function] } }
+{ davidj: 
+   { name: 'davidj',
+     socket: 
+      Socket {
+        nsp: [Object],
+        server: [Object],
+        adapter: [Object],
+        id: 'y5aOlvxiR4umCxcLAAAC',
+        client: [Object],
+        conn: [Object],
+        rooms: [Object],
+        acks: {},
+        connected: true,
+        disconnected: false,
+        handshake: [Object],
+        fns: [],
+        flags: {},
+        _rooms: [],
+        _events: [Object],
+        _eventsCount: 3 },
+     currentGameID: null } }
+Join
+{ Game_iziwnwsl4: 
+   { name: 'Game_iziwnwsl4',
+     players: [ [Object] ],
+     maxPlayers: 8,
+     isFull: false,
+     join: [Function],
+     getPlayers: [Function],
+     removePlayer: [Function] } }
+{ davidj: 
+   { name: 'davidj',
+     socket: 
+      Socket {
+        nsp: [Object],
+        server: [Object],
+        adapter: [Object],
+        id: 'y5aOlvxiR4umCxcLAAAC',
+        client: [Object],
+        conn: [Object],
+        rooms: [Object],
+        acks: {},
+        connected: true,
+        disconnected: false,
+        handshake: [Object],
+        fns: [],
+        flags: {},
+        _rooms: [],
+        _events: [Object],
+        _eventsCount: 3 },
+     currentGameID: 'Game_iziwnwsl4' } }
+[ 'Game_iziwnwsl4',
+  [ { name: 'davidj',
+      socket: [Object],
+      money: 0,
+      properties: [],
+      getOutOfJail: 0 } ] ]
+Select
+Create
+davidj user disconnected
+{}
+{}
+{ '[object Object]': 'ConorDunph231' }
+{ ConorDunph231: 
+   Socket {
+     nsp: 
+      Namespace {
+        name: '/',
+        server: [Object],
+        sockets: [Object],
+        connected: [Object],
+        fns: [],
+        ids: 0,
+        rooms: [],
+        flags: {},
+        adapter: [Object],
+        _events: [Object],
+        _eventsCount: 1 },
+     server: 
+      Server {
+        nsps: [Object],
+        _path: '/socket.io',
+        _serveClient: true,
+        parser: [Object],
+        encoder: Encoder {},
+        _adapter: [Function: Adapter],
+        _origins: '*:*',
+        sockets: [Object],
+        eio: [Object],
+        httpServer: [Object],
+        engine: [Object] },
+     adapter: 
+      Adapter {
+        nsp: [Object],
+        rooms: [Object],
+        sids: [Object],
+        encoder: Encoder {} },
+     id: 'PKUqOsGRcy5_OVBJAAAF',
+     client: 
+      Client {
+        server: [Object],
+        conn: [Object],
+        encoder: Encoder {},
+        decoder: [Object],
+        id: 'PKUqOsGRcy5_OVBJAAAF',
+        request: [Object],
+        onclose: [Function: bound ],
+        ondata: [Function: bound ],
+        onerror: [Function: bound ],
+        ondecoded: [Function: bound ],
+        sockets: [Object],
+        nsps: [Object],
+        connectBuffer: [] },
+     conn: 
+      Socket {
+        id: 'PKUqOsGRcy5_OVBJAAAF',
+        server: [Object],
+        upgrading: false,
+        upgraded: true,
+        readyState: 'open',
+        writeBuffer: [],
+        packetsFn: [],
+        sentCallbackFn: [],
+        cleanupFn: [Array],
+        request: [Object],
+        remoteAddress: '::ffff:92.60.194.78',
+        checkIntervalTimer: null,
+        upgradeTimeoutTimer: null,
+        pingTimeoutTimer: [Object],
+        transport: [Object],
+        _events: [Object],
+        _eventsCount: 3 },
+     rooms: { PKUqOsGRcy5_OVBJAAAF: 'PKUqOsGRcy5_OVBJAAAF' },
+     acks: {},
+     connected: true,
+     disconnected: false,
+     handshake: 
+      { headers: [Object],
+        time: 'Wed Jan 31 2018 18:34:41 GMT+0100 (CET)',
+        address: '::ffff:92.60.194.78',
+        xdomain: false,
+        secure: false,
+        issued: 1517420081685,
+        url: '/socket.io/?EIO=3&transport=polling&t=M5DIHge',
+        query: [Object] },
+     fns: [],
+     flags: {},
+     _rooms: [],
+     _events: 
+      { disconnect: [Function],
+        setName: [Function],
+        gameSelect: [Function] },
+     _eventsCount: 3 } }
+ConorDunph231 has joined at IP: ::ffff:92.60.194.78
+{ Game_iziwnwsl4: 
+   { name: 'Game_iziwnwsl4',
+     players: [ [Object] ],
+     maxPlayers: 8,
+     isFull: false,
+     join: [Function],
+     getPlayers: [Function],
+     removePlayer: [Function] },
+  Game_ijibjq0kn: 
+   { name: 'Game_ijibjq0kn',
+     players: [],
+     maxPlayers: 8,
+     isFull: false,
+     join: [Function],
+     getPlayers: [Function],
+     removePlayer: [Function] } }
+{ davidj: 
+   { name: 'davidj',
+     socket: 
+      Socket {
+        nsp: [Object],
+        server: [Object],
+        adapter: [Object],
+        id: 'y5aOlvxiR4umCxcLAAAC',
+        client: [Object],
+        conn: [Object],
+        rooms: {},
+        acks: {},
+        connected: false,
+        disconnected: true,
+        handshake: [Object],
+        fns: [],
+        flags: {},
+        _rooms: [],
+        _events: [Object],
+        _eventsCount: 3 },
+     currentGameID: 'Game_iziwnwsl4' },
+  ConorDunph231: 
+   { name: 'ConorDunph231',
+     socket: 
+      Socket {
+        nsp: [Object],
+        server: [Object],
+        adapter: [Object],
+        id: 'PKUqOsGRcy5_OVBJAAAF',
+        client: [Object],
+        conn: [Object],
+        rooms: [Object],
+        acks: {},
+        connected: true,
+        disconnected: false,
+        handshake: [Object],
+        fns: [],
+        flags: {},
+        _rooms: [],
+        _events: [Object],
+        _eventsCount: 3 },
+     currentGameID: null } }
+Create
+Create
+Create
+Create
+Create
+ConorDunph231 user disconnected
+{}
+{}

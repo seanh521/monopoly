@@ -1,0 +1,5 @@
+<button id='joinGameButton' class="selectGameButton">Join a game</button>
+<br>
+<button id='selectGameButton' class="selectGameButton">Select a Game</button>
+<br>
+<button id='createGameButton' class="selectGameButton">Create Game</button>

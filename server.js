@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var usersSockets = {};
-var users = {};
+var usersSockets = {}; //Key: socket, Value: username
+var users = {}; //Key: username, Value: socket
 var onlinePlayers = {};
 var games = {};
 var freeGames = [];
@@ -67,16 +67,29 @@ function createNewGame (name, maxPlayers, isLocked, password) {
         return game.players;
     }
 
+    game.removePlayer = function (username) {  
+        for (var i in game.players) {
+            if (game.players[i].name == username) {
+                console.log ("Removing " + game.players[i].name + "from game (" + game.name + ").")
+                delete game.players[i];
+            }
+        }
+    }
+
     return game;
 }
 
 io.on('connection', function (socket){
     //console.log('A user connected');
     socket.on('disconnect', function(){
-        if (usersSockets[socket.request.connection.remoteAddress]) {
-            console.log(usersSockets[socket.request.connection.remoteAddress] + ' user disconnected');
-            delete users[usersSockets[socket.request.connection.remoteAddress]];
-            delete usersSockets[socket.request.connection.remoteAddress];
+        // if (usersSockets[socket.request.connection.remoteAddress]) {
+        if (usersSockets[socket]) {
+            // console.log(usersSockets[socket.request.connection.remoteAddress] + ' user disconnected');
+            // delete users[usersSockets[socket.request.connection.remoteAddress]];
+            // delete usersSockets[socket.request.connection.remoteAddress];
+            console.log(usersSockets[socket] + ' user disconnected');
+            delete users[usersSockets[socket]];
+            delete usersSockets[socket];
 
             //Make method in player to remove certain players on disconnect
 
@@ -86,17 +99,20 @@ io.on('connection', function (socket){
     });
 
     socket.on('setName', function (data){
-        usersSockets[socket.request.connection.remoteAddress] = data;
-        users[data] = socket.request.connection.remoteAddress;
+        // usersSockets[socket.request.connection.remoteAddress] = data;
+        // users[data] = socket.request.connection.remoteAddress;
+        usersSockets[socket] = data;
+        users[data] = socket;
         console.log (usersSockets);
         console.log (users);
         console.log(data + " has joined at IP: " + socket.request.connection.remoteAddress); //Prints the username and IP of client
         socket.emit("nameConfirmation", "Welcome to the game");
         var gameID = Math.random().toString(36).substr(4, 15);
         games["Game_" + gameID] = createNewGame(gameID);
-        games["Game_" + gameID].addNewPlayer("test");
+        //games["Game_" + gameID].addNewPlayer("test");
         freeGames.push("Game_" + gameID); //push to make sure people who've been waiting longest start first
-        onlinePlayers[data] = createPlayerProfile (data, socket.request.connection.remoteAddress);
+        // onlinePlayers[data] = createPlayerProfile (data, socket.request.connection.remoteAddress);
+        onlinePlayers[data] = createPlayerProfile (data, socket);
         console.log (games);
         console.log (onlinePlayers);
     });
@@ -104,9 +120,26 @@ io.on('connection', function (socket){
     socket.on ('gameSelect', function (data) {
         console.log (data);
         if (data == "Join") {
-            joinGame(socket.request.connection.remoteAddress);
+            // joinGame(socket.request.connection.remoteAddress);
+            joinGame(socket);
         }
     })
+
+    socket.on ('rollDice', function (data) {
+        console.log ("Testing dice roll");
+        var firstDice = Math.floor(Math.random() * 6) + 1;
+        var secondDice = Math.floor(Math.random() * 6) + 1;
+        var data = {};
+        data.firstDice = firstDice;
+        data.secondDice = secondDice;
+        if (firstDice == secondDice) {
+            data.isDouble = true;
+        }
+        else {
+            data.isDouble = false;
+        }        
+        socket.emit ("diceRollResult", data);
+    });
 });
 
 function joinGame (socket) {
@@ -119,19 +152,22 @@ function joinGame (socket) {
     onlinePlayers[usersSockets[socket]].currentGameID = freeGames[0];
     console.log(games);
     console.log (onlinePlayers);
-   // broadcastToPlayers(freeGames[0]);
-   var data = [freeGames[0], games[freeGames[0]].getPlayers()];
-   socket.emit("returnGame", data);
+    var data = {};
+    data.gameID = freeGames[0];
+    //data.players = games[freeGames[0]].getPlayers();
+    data.test = "Test";
+    socket.emit("returnGame", data);
+    //socket.emit("returnGame", freeGames[0]);
 }
 
-function broadcastToPlayers (gameID) {
+function broadcastToPlayers (socket, gameID) {
     games[gameID].getPlayers().forEach(element => {
         console.log(element); //Issue is that it returns an object reference not a player object   
         var clientName = element["name"];
         console.log (clientName);
-        //clientSocket.emit("welcomeToGame", "Welcome to the game");
-        //io.sockets.socket(element["socket"]).emit("welcomeToGame", "Welcome to the game");
-        //io.to
         io.to(users[clientName]).emit("nameConfirmation", "Welcome to the game scrubz");
     });
 }
+
+//Allow user to name their game if they create it, add name and ID attributes to game class. Maybe also add a game owner
+//View game names on the select game screen

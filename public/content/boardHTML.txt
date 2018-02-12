@@ -1,0 +1,327 @@
+<div id="gameContainer">
+    <div id="board">
+        <table>
+            <tr>
+                <td class="edge" id="1010">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="1009">
+                    <div class = "top">
+                    </div>
+                </td>
+
+                <td class="ver" id="1008">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="1007">
+                    <div class = "top">
+                    </div>
+                </td>
+
+                <td class="ver" id="1006">
+                    <div class = "top">
+                    </div>
+                </td>
+
+                <td class="ver" id="1005">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="1004">
+                    <div class = "top">
+                    </div>
+                </td>
+
+                <td class="ver" id="1003">
+                    <div class = "top">
+                    </div>
+                </td>
+
+                <td class="ver" id="1002">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="1001">
+                    <div class = "top">
+                    </div>
+                </td>
+
+                <td class="edge" id="1000">
+                    <div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0910">
+                    <div class = "left">
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0900">
+                    <div class = "right">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0810">
+                    <div class = "left">
+                    </div>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0800">
+                    <div class = "right">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0710">
+                    <div>
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0700">
+                    <div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0610">
+                    <div class = "left">
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0600">
+                    <div class = "right">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0510">
+                    <div>
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td id= "center"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0500">
+                    <div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0410">
+                    <div class = "left">
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0400">
+                    <div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0310">
+                    <div class = "left">
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0300">
+                    <div class = "right">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0210">
+                    <div>
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0200">
+                    <div>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="hor" id="0110">
+                    <div class = "left" >
+                    </div>
+                </td>
+
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td class="hor" id="0100">
+                    <div class = "right">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="edge" id="0010">
+                    <div class = "jail" >
+                    </div>
+                </td>
+
+                <td class="ver" id="0009">
+                    <div class = "bottom">
+                    </div>
+                </td>
+
+                <td class="ver" id="0008">
+                    <div class = "bottom">
+                    </div>
+                </td>
+
+                <td class="ver" id="0007">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="0006">
+                    <div class = "bottom">
+                    </div>
+                </td>
+
+                <td class="ver" id="0005">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="0004">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="0003">
+                    <div class = "bottom">
+                    </div>
+                </td>
+
+                <td class="ver" id="0002">
+                    <div>
+                    </div>
+                </td>
+
+                <td class="ver" id="0001">
+                    <div class = "bottom">
+                    </div>
+                </td>
+
+                <td class="edge" id="0000">
+
+                    <!-- <div> -->
+                        <img class="player" src="images/boot.png" alt="Player1" id="player1">
+                        <!-- <img class = "player" src="images/car.png" alt="Player2" id="player2">
+                        <img class = "player" src="images/hat.png" alt="Player3" id="player3">
+                        <img class = "player" src="images/ship.png" alt="Player4" id="player4"> -->
+                    <!-- </div> -->
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="gameControls">
+        <button id="rollDiceButton" class="gameButton">
+            Roll Dice
+        </button>
+    </div>
+</div>

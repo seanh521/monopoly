@@ -39,9 +39,90 @@ body {
 }
 
 #inputForm {
+    width: 80%;
+}
+
+#gameContainer {
+    width: 85%;
+    height: 100%;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 50%;
+}
+
+input {
+    width: 100%;
+    font-size: 150%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    
+    padding: 1.2% 2%;
+    margin: 2% 0;
+}
+
+button {
+    width: 100%;
+
+    font-size: 135%;
+    
+    border: none;
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    padding: 2.2% 3%;
+    margin: 8px 0;
+
+    color: white;
+    background-color: rgba(19, 128, 232, 0.7);
+}
+
+button:hover {
+    background-color: rgba(19, 128, 232, 1);
+}
+
+.selectGameButton {
+    width: 25%;
+
+    font-size: 150%;
+
+    border: none;
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    padding: 2.2% 3%;
+    margin: 8px 8px;
+
+    color: white;
+    background-color: rgba(19, 128, 232, 0.7);
+}
+
+.gameButton {
+    width: 70%;
+
+    font-size: 150%;
+
+    border: none;
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    /* padding: 2.2% 3%; */
+    margin: 8px 8px;
+
+    color: white;
+    background-color: rgba(19, 128, 232, 0.7);
+}
+
+
+button:disabled,
+button[disabled]{
+  /* border: 1px solid #999999; */
+  background-color: #cccccc;
+  color: #666666;
+  cursor: default;
 }
 
 .menuSection {
@@ -54,15 +135,6 @@ body {
 }
 
 .menu {
-    /* z-index: 3;
-    /* margin-top: -45px; */
-    /* margin-top: 0.041666666666666664em; */
-    /* width: 0%;
-    height: calc(106.7%);
-    height: 100%;
-    -webkit-transition: width 1s ease-in-out;
-    transition: width 1s ease-in-out;
-    background-color:; */
     user-select: none;
     height: 100%;
     width: 0;
@@ -86,36 +158,17 @@ body {
     transition: 0.3s;
 }
 
-/* .menuOptions {
-    z-index: 3;
-    width: 0%;
-    height: 100%;
-    transition: 1s;
-}
-*/
-
-/* .menuOption {
-    z-index: -1;
-    width: 100%;
-    height: 5%;
-    /* opacity: 0; 
-    padding-top: 8px;
-    padding-bottom: 8px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #818181;
-    display: block;    
-    transition: 1s;
-} */
-
 #menuButton {
     position: absolute;
-    /* padding-top: 12px; */
     padding: 10px;
     z-index: 999;
     width: 45px;
     height: 45px;
     display: inline-block;    
+}
+
+#menuButton:hover {
+    cursor: pointer;
 }
 
 #menuButton:hover > div {
@@ -156,11 +209,96 @@ body {
     width: 100%;
 }
 
-/* .change .menuOption {
-    width: 100%;
-    z-index: 3;
-   /* opacity: 100;
-   color: #D6D8DE;
-   background-color: #252526;
-   border: none;
-} */
+/* BOARD CSS HERE */
+
+table {
+    table-layout: fixed;
+    border: none;
+    text-align: center;
+    table-layout:fixed;
+    border-collapse: collapse;
+    width:700px;
+    height:700px;
+}
+
+#board {
+    background-image: url('../images/Board.jpg');
+    background-size: 700px 700px;
+    background-repeat: no-repeat;
+
+    /* width: 700px;
+    height: 700px; */
+}
+
+.edge {
+    border: none;
+    height: 94px !important;
+    width: 95px !important;
+    padding: 0px;
+    margin: 0px;
+}
+
+.player{
+    width: 20px;
+    height:20px;
+}
+
+#gameControls {
+    width: 20%;
+    height: 700px;
+
+    position: absolute;
+    right: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* margin-left: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px; */
+
+    background-color: rgba(179, 179, 181, 0.5);
+
+    border-radius: 5px;
+}
+
+#dicePosition1 {
+    float: left;
+    height: 15px;
+    width: 15px;
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid black;
+    border-radius: 5px;  
+    font-size:18px;
+    background-color: white;
+    /*visibility: visible;*/
+    opacity: 0.0;
+}
+
+#dicePosition2 {
+    float: left;
+    height: 15px;
+    width: 15px;
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid black;
+    border-radius: 5px;  
+    font-size:18px;
+    background-color: white;
+    /*visibility: visible;*/
+    opacity: 0.0;
+}
+
+.hor {
+    width: 94px;
+    height: 56px;
+    padding: 0px;
+}
+
+.ver {
+    width: 56px;
+    height: 96px;
+    padding: 0px;
+}
