@@ -320,8 +320,22 @@
     </div>
 
     <div id="gameControls">
-        <button id="rollDiceButton" class="gameButton">
-            Roll Dice
-        </button>
+        <div id="gamePlayers" class="gameControlSection">
+        </div>
+
+        <div id="gameButtons" class="gameControlSection">
+            <div>
+                <button id="rollDiceButton" class="gameButton">
+                    Roll Dice
+                </button>
+                <button id="auctionButton" class="gameButton">
+                    Disregard Women
+                </button>
+                <button id="buyPropertyButton" class="gameButton">
+                    Acquire Capital
+                </button>
+            </div>
+        </div>
+        <div id="gameChat" class="gameControlSection"></div>        
     </div>
 </div>

@@ -19,6 +19,9 @@ app.get('/', function (req, res) {
 
 http.listen(56630, function(){
     console.log('Listening on *:56630');
+    var gameID = Math.random().toString(36).substr(4, 15);
+    games["Game_" + gameID] = createNewGame(gameID);
+    freeGames.push("Game_" + gameID);
 });
 
 function createPlayerProfile (name, socket) {
@@ -34,7 +37,14 @@ function createNewPlayer (name, socket) {
     player.name = name;
     player.socket = socket;
     player.money = 0;
-    player.properties = [];
+    player.properties = {};
+    player.properties.brown = 0;
+    player.properties.pink = 0;
+    player.properties.lightBlue = 0;
+    player.properties.orange = 0;
+    player.properties.red = 0;
+    player.properties.green = 0;
+    player.properties.blue = 0;
     player.getOutOfJail = 0;
     return player;
 }
@@ -44,6 +54,7 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     //game.players = {};
     game.name = "Game_" + name;
     game.players = [];
+    game.playerNames = [];
     if (typeof (maxPlayers) == "undefined") {
         game.maxPlayers = 8;
     }
@@ -60,19 +71,39 @@ function createNewGame (name, maxPlayers, isLocked, password) {
 
     game.join = function (name, socket) {
         //game.players[name] = (createNewPlayer(name, socket)); 
-        game.players.push(createNewPlayer(name, socket));    
+        game.players.push(createNewPlayer(name, socket));
+        game.playerNames.push(name);
+        game.broadcastToPlayers ("newPlayer", name);
     }
 
     game.getPlayers = function () {
-        return game.players;
+        // var tempArray = [];
+        // for (i=0; i<=game.players.length - 1; i++) {
+        //     tempArray.push (game.players[i].name);
+        // }
+        // //var tempArray = game.players.splice (0, game.players.length - 1);
+        // //console.log ("Trying to log temp array: " + tempArray);
+        // //console.log ("Logging actual players array: " + game.players);
+        return game.playerNames;
     }
 
     game.removePlayer = function (username) {  
         for (var i in game.players) {
             if (game.players[i].name == username) {
-                console.log ("Removing " + game.players[i].name + "from game (" + game.name + ").")
+                console.log ("Removing " + game.players[i].name + " from game (" + game.name + ").")
+                //game.broadcastToPlayers ("playerLeft", game.players[i].name);
                 delete game.players[i];
+                delete game.playerNames[i];
             }
+        }
+    }
+
+    game.broadcastToPlayers = function (event, data) {
+        console.log ("Broadcasting to players...");
+        //console.log (users);
+        for (var i in game.players) {
+            //console.log(users[game.playerNames[i]]);
+            io.sockets.connected[users[game.playerNames[i]].id].emit(event, data);
         }
     }
 
@@ -82,45 +113,40 @@ function createNewGame (name, maxPlayers, isLocked, password) {
 io.on('connection', function (socket){
     //console.log('A user connected');
     socket.on('disconnect', function(){
-        // if (usersSockets[socket.request.connection.remoteAddress]) {
-        if (usersSockets[socket]) {
-            // console.log(usersSockets[socket.request.connection.remoteAddress] + ' user disconnected');
-            // delete users[usersSockets[socket.request.connection.remoteAddress]];
-            // delete usersSockets[socket.request.connection.remoteAddress];
-            console.log(usersSockets[socket] + ' user disconnected');
-            delete users[usersSockets[socket]];
-            delete usersSockets[socket];
-
-            //Make method in player to remove certain players on disconnect
-
-            console.log (usersSockets);
+        if (usersSockets[socket.id]) {
+            console.log(usersSockets[socket.id] + ' user disconnected from game (' + onlinePlayers[usersSockets[socket.id]].currentGameID + ')');            
+            if (onlinePlayers[usersSockets[socket.id]].currentGameID != null) {
+                games[onlinePlayers[usersSockets[socket.id]].currentGameID].removePlayer (usersSockets[socket.id]);
+            }
+            delete users[usersSockets[socket.id]];
+            delete usersSockets[socket.id];
+            //////////////////////// IT DELETES THE WRONG INDEX FOR SOME REASON
+            //console.log (usersSockets);
             console.log (users);
         }
     });
 
     socket.on('setName', function (data){
-        // usersSockets[socket.request.connection.remoteAddress] = data;
-        // users[data] = socket.request.connection.remoteAddress;
-        usersSockets[socket] = data;
-        users[data] = socket;
-        console.log (usersSockets);
-        console.log (users);
-        console.log(data + " has joined at IP: " + socket.request.connection.remoteAddress); //Prints the username and IP of client
-        socket.emit("nameConfirmation", "Welcome to the game");
-        var gameID = Math.random().toString(36).substr(4, 15);
-        games["Game_" + gameID] = createNewGame(gameID);
-        //games["Game_" + gameID].addNewPlayer("test");
-        freeGames.push("Game_" + gameID); //push to make sure people who've been waiting longest start first
-        // onlinePlayers[data] = createPlayerProfile (data, socket.request.connection.remoteAddress);
-        onlinePlayers[data] = createPlayerProfile (data, socket);
-        console.log (games);
-        console.log (onlinePlayers);
+        console.log ("Connecting");
+        if (users[data] == null) {
+            usersSockets[socket.id] = data;
+            users[data] = socket;
+            console.log(data + " has joined at IP: " + socket.request.connection.remoteAddress); //Prints the username and IP of client
+            socket.emit("nameConfirmation", "Welcome to the game");
+            //var gameID = Math.random().toString(36).substr(4, 15);
+            //games["Game_" + gameID] = createNewGame(gameID);
+            //games["Game_" + gameID].addNewPlayer("test");
+            //freeGames.push("Game_" + gameID); //push to make sure people who've been waiting longest start first
+            onlinePlayers[data] = createPlayerProfile (data, socket);
+        }
+        else {
+            socket.emit ("nameTaken", "true");
+        }
     });
 
     socket.on ('gameSelect', function (data) {
         console.log (data);
         if (data == "Join") {
-            // joinGame(socket.request.connection.remoteAddress);
             joinGame(socket);
         }
     })
@@ -138,35 +164,33 @@ io.on('connection', function (socket){
         else {
             data.isDouble = false;
         }        
-        socket.emit ("diceRollResult", data);
+        games[onlinePlayers[usersSockets[socket.id]].currentGameID].broadcastToPlayers ("diceRollResult", data);
+        //socket.emit ("diceRollResult", data);
     });
 });
 
 function joinGame (socket) {
-    try {
-        games[freeGames[0]].join(usersSockets[socket], socket);
+    if (freeGames.length > 0) {
+        try {
+            games[freeGames[0]].join(usersSockets[socket.id], socket);
+        }
+        catch (err){
+            console.log ("There was an error adding a player to the game.");
+        }
     }
-    catch (err){
-        return ("Error");
+    else {
+        var gameID = Math.random().toString(36).substr(4, 15);
+        games["Game_" + gameID] = createNewGame(gameID);
+        freeGames.push("Game_" + gameID);
     }
-    onlinePlayers[usersSockets[socket]].currentGameID = freeGames[0];
-    console.log(games);
+    
+    onlinePlayers[usersSockets[socket.id]].currentGameID = freeGames[0];
+    //console.log(games);
     console.log (onlinePlayers);
     var data = {};
     data.gameID = freeGames[0];
-    //data.players = games[freeGames[0]].getPlayers();
-    data.test = "Test";
+    data.players = games[freeGames[0]].getPlayers();
     socket.emit("returnGame", data);
-    //socket.emit("returnGame", freeGames[0]);
-}
-
-function broadcastToPlayers (socket, gameID) {
-    games[gameID].getPlayers().forEach(element => {
-        console.log(element); //Issue is that it returns an object reference not a player object   
-        var clientName = element["name"];
-        console.log (clientName);
-        io.to(users[clientName]).emit("nameConfirmation", "Welcome to the game scrubz");
-    });
 }
 
 //Allow user to name their game if they create it, add name and ID attributes to game class. Maybe also add a game owner
