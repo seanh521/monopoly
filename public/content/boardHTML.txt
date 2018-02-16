@@ -320,6 +320,8 @@
     </div>
 
     <div id="gameControls">
+        <div id="playerInfo" class="gameControlSection">            
+        </div>
         <div id="gamePlayers" class="gameControlSection">
         </div>
 
@@ -329,13 +331,17 @@
                     Roll Dice
                 </button>
                 <button id="auctionButton" class="gameButton">
-                    Disregard Women
+                    Respect Women
                 </button>
                 <button id="buyPropertyButton" class="gameButton">
                     Acquire Capital
                 </button>
             </div>
         </div>
-        <div id="gameChat" class="gameControlSection"></div>        
+        <div id="gameChat" class="gameControlSection">
+            <div id="chatWindow">
+            </div>
+            <input id="chatInput"autocomplete="off" placeholder="Type message here" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Type message here'"></input>
+        </div>      
     </div>
 </div>

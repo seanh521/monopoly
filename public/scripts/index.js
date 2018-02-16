@@ -47,23 +47,22 @@ function setUsername() {
         document.getElementById ("usernameInput").style.border = "1.5px solid #ed3d3d";    
     }
     else {
-        //Strip the input for spaces and most special characters
+        ///////TO-DO - Strip the input for spaces and most special characters
         username = document.getElementById("usernameInput").value;
         socket.emit ("setName", username);
     }
 }
 
 socket.on ("nameConfirmation", function (data) {
-    console.log(data);
-    $("#inputArea").fadeOut();
-    window.setTimeout (function() {
-        $("#inputArea").load("../content/gameSelect.txt");
-        $("#inputArea").width("60%");
-        $("#inputArea").fadeIn();
-        $(document).on('click','#joinGameButton', joinGameClick);
-        $(document).on('click','#selectGameButton', selectGameClick);
-        $(document).on('click','#createGameButton', createGameClick);
-    }, 500);
+    $("#inputArea").fadeOut(function () {
+        $("#inputArea").load("../content/gameSelect.txt", function () {
+            $("#inputArea").width("60%");
+            $("#inputArea").fadeIn();
+            $(document).on('click','#joinGameButton', joinGameClick);
+            $(document).on('click','#selectGameButton', selectGameClick);
+            $(document).on('click','#createGameButton', createGameClick);
+        });        
+    });
 });
 
 socket.on ("nameTaken", function (data) {
@@ -71,62 +70,78 @@ socket.on ("nameTaken", function (data) {
 });
 
 socket.on ("welcomeToGame", function (data){
-    console.log (data);
+    console.log (data)
 });
 
 socket.on ("returnGame", function (data){
-    // console.log ("Game ID: " + data[0] + "\nPlayers: " + data[1]);
-    console.log ("Game ID: " + data.gameID + "\nPLayers: " + data.players);
+    //console.log ("Game ID: " + data.gameID + "\nPLayers: " + data.players);
     $("#content").fadeOut(function () {
         $("#content").load("../content/boardHTML.txt", function () {
-            //$("#content").css("visibility", "hidden");
-            //window.setTimeout (function() {
-                $("#content").css("visibility", "visible");
+                //$("#content").css("visibility", "visible");
                 playerList = data.players;            
-                listPlayers (playerList);                
-            //}, 500);
+                listPlayers (playerList);
+                serverMessage ("Welcome to the Game");
         });
     });
-    $("#gamePlayers").text(username).toString();
 
     $(document).on('click','#rollDiceButton',function(){
         $("#rollDiceButton").attr("disabled", "disabled");
         socket.emit ("rollDice", "true");
-    })
+    });
+
+    $(document).keypress ("#chatInput", function (event) {
+        if (event.keyCode == 13 && $.trim($("#chatInput").val()) != 0) {
+            socket.emit ("gameChat", $("#chatInput").val());
+            // var playerName = document.createElement ("p");
+            // playerName.className = "senderUsername";
+            // var playerNameText = document.createTextNode ("You");
+            // playerName.appendChild (playerNameText);
+            var node = document.createElement ("span");
+            var text = document.createTextNode ($("#chatInput").val());
+            node.className = "outgoingMessage";
+            node.append(text);            
+            // $("#chatWindow").append(playerName); 
+            $("#chatWindow").append(node);
+            $("#chatWindow").scrollTop($("#chatWindow").height());
+            $("#chatInput").val("");
+            $("#chatInput").blur();
+        }
+    });
 });
 
 function listPlayers (playersArray) {
-    var first = true;
     for (var i in playersArray) {
         if (playersArray[i] != null) {
-            if (first) {
-                $("#gamePlayers").append(playersArray[i]);
-                first = false;
-            }
-            else {
-                $("#gamePlayers").append("\n" + playersArray[i]);
-            }
+            var node = document.createElement ("span");
+            var text = document.createTextNode (playersArray[i]);
+            node.id = "User_" + playersArray[i];
+            node.className = "playerText";
+            node.append(text);
+            $("#gamePlayers").append(node);
         }
     }
     $("#content").fadeIn();
 }
 
 socket.on ("playerLeft", function (data) {
-    console.log (data);
+    serverMessage (data + " has disconnected from the game.");
+    $("#gamePlayers").children("#User_" + data).css("text-decoration", "line-through");
 });
 
 socket.on ("newPlayer", function (data) {
-    //var node = document.createElement ("LI");
-    // var text = document.createTextNode (data);
-    // text.id = "User_" + data;
-    // $("#gamePlayers").append(text);
-    console.log (data + " has joined the game.");
-    //listPlayers (playerList);
-    $("#gamePlayers").append("\n" + data);
-});
-
-socket.on ("playerLeft", function (data) {
-    document.getElementById ("User_" + data).style.textDecoration = "line-through";
+    serverMessage (data + " has joined the game.");
+    if (document.getElementById("User_" + data) == null) {
+        
+        var node = document.createElement ("span");
+        var text = document.createTextNode (data);
+        node.id = "User_" + data;
+        node.className = "playerText";
+        node.append(text);
+        $("#gamePlayers").append(node);
+    }
+    else {
+        $("#gamePlayers").children("#User_" + data).css("text-decoration", "none");
+    }    
 });
 
 socket.on ("diceRollResult", function (data) {
@@ -139,9 +154,6 @@ socket.on ("diceRollResult", function (data) {
 
 //First attempt using Philip's move functions
 function callMovePlayer (roll) {
-    //var roll = Math.floor(Math.random() * (12 - 2 + 1) + 2);
-    //console.log(turn + " " + roll + " " + doubles[turn] + " " + players[turn].inJail);
-
     if(players[turn].inJail == 0 && roll % 2 == 0) {
         doubles[turn]++;
         if(doubles[turn] == 3) {
@@ -242,10 +254,54 @@ function joinGameClick () {
     socket.emit ("gameSelect", "Join");
 }
 
+function createGameClick () {
+    $("#inputArea").fadeOut(function () {
+        $("#inputArea").load("../content/createGame.txt", function () {
+            $("#inputArea").width("25%");
+            $("#inputArea").height("40%");
+            $("#inputArea").fadeIn();
+            $(document).on('click','#createGame', createGame);
+        });        
+    });
+}
+
+function createGame () {
+    console.log ("Click");
+}
+
 function selectGameClick () {
     socket.emit ("gameSelect", "Select");
 }
 
-function createGameClick () {
-    socket.emit ("gameSelect", "Create");
+socket.on ("gameChat", function (data) {
+    var playerName = null;
+    if ($("#chatWindow").children().last().attr("id") != data.sender) {
+        playerName = document.createElement ("p");
+        playerName.className = "chatUsername";
+        var playerNameText = document.createTextNode (data.sender);
+        playerName.appendChild (playerNameText);
+    }    
+    var node = document.createElement ("span");
+    var text = document.createTextNode (data.message);
+    node.id = data.sender;
+    node.className = "incomingMessage";
+    node.append(text);
+    if (playerName != null) {
+        $("#chatWindow").append(playerName);
+    }    
+    $("#chatWindow").append(node);
+    $("#chatWindow").scrollTop($("#chatWindow").height());
+});
+
+socket.on ("serverMessage", function (data) {
+    serverMessage(data);
+});
+
+function serverMessage (message) {
+    var node = document.createElement ("span");
+    var text = document.createTextNode (message);
+    node.className = "serverMessage";
+    node.append(text);
+    $("#chatWindow").append(node);
+    $("#chatWindow").scrollTop($("#chatWindow").height());
 }

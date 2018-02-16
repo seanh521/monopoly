@@ -25,9 +25,16 @@
 
         <div id="content">
           <div id="inputArea">
-            <div id="inputForm">
-              <input name="Username" type="text" class="usernameInput" id="usernameInput" autocomplete="off" placeholder="Username" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'"/>
-              <button class="submitButton" id="submitUsername">Submit Username</button>
+            <div id="createGameForm">
+                <input name="gameName" type="text" class="usernameInput" id="gameName" autocomplete="off" placeholder="Game Name" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Game Name'"/>
+                <input name="maxPlayers" type="text" class="usernameInput" id="usernameInput" autocomplete="off" placeholder="Max Players" onfocus="this.placeholder = ''" onblur="this.placeholder = 'MaxPlayers'"/>
+                <label class="checkboxLabel">
+                        Make Game Private
+                    <input type="checkbox">                    
+                    <span class="checkmark"></span>
+                </label>
+                <input name="gameName" type="text" class="usernameInput" id="gameName" autocomplete="off" placeholder="Game Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Game Password'"/>
+                <button class="submitButton" id="createGame">Create Game</button>
             </div>
           </div>
         </div>       
