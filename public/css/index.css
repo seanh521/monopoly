@@ -132,7 +132,7 @@ input {
     
     padding: 1.2% 2%;
     margin: 2% 0;
-    margin-top: 0;
+    margin-top: 14px;
 }
 
 button {
@@ -588,5 +588,5 @@ table {
 .warningLabel {
     color: #ed3d3d;
     font-size: 12px;
-
+    height: 14px;
 }

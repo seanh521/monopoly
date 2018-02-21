@@ -47,6 +47,7 @@ function player(icon) {
 
 function setUsername() {
     if (document.getElementById ("usernameInput").value == false) {
+        $("#usernameInput").css ("margin-top", "0px");
         $("#usernameInputLabel").html ("Username must be given");
         document.getElementById ("usernameInput").style.border = "1.5px solid #ed3d3d";    
     }
@@ -105,6 +106,7 @@ function loadGame (data) {
 }
 
 socket.on ("nameTaken", function (data) {
+    $("#usernameInput").css ("margin-top", "0px");
     $("#usernameInputLabel").html ("This username is already in use");
     document.getElementById("usernameInput").style.border = "1.5px solid #ed3d3d";
 });
@@ -274,10 +276,12 @@ function createGameClick () {
                 console.log ($("#maxPlayersInput").val()); 
                 if ($.isNumeric($("#maxPlayersInput").val())) {                   
                     $("#maxPlayersInputLabel").html (""); 
+                    $("#maxPlayersInput").css ("margin-top", "14px");
                     document.getElementById ("maxPlayersInput").style.border = "none";
                     maxPlayersIsNumeric = true
                 }
                 else {
+                    $("#maxPlayersInput").css ("margin-top", "0px");
                     $("#maxPlayersInputLabel").html ("Only numbers allowed in this input");
                     document.getElementById ("maxPlayersInput").style.border = "1.5px solid #ed3d3d";
                     maxPlayersIsNumeric = false
@@ -306,9 +310,11 @@ function createGame () {
 
     if ($("#gameName").val() != false) {
         $("#gameNameLabel").html ("");
+        $("#gameName").css ("margin-top", "14px");
         namePass = true;
     }
     else {
+        $("#gameName").css ("margin-top", "0px");
         $("#gameNameLabel").html ("Input cannot be left empty");
         document.getElementById("gameName").style.border = "1.5px solid #ed3d3d";
         namePass = false;
@@ -324,9 +330,11 @@ function createGame () {
     if (createdGameIsPrivate) {
         if ($("#gamePassword").val() != false) {
             $("#gamePasswordLabel").html ("");
+            $("#gamePassword").css ("margin-top", "14px");
             passwordPass = true;
         }
         else {
+            $("#gamePassword").css ("margin-top", "0px");
             $("#gamePasswordLabel").html ("Password must be given");
             document.getElementById("gamePassword").style.border = "1.5px solid #ed3d3d";
             passwordPass = false;
@@ -423,11 +431,13 @@ socket.on ("gamesList", function (data) {
                             socket.emit ("selectedGame", event.target.id);
                         }
                         else {
-                            $("#passwordInputLabel").html ("Password invalid");
+                            $("#passwordInput").css ("margin-top", "0px");
+                            $("#passwordInputLabel").html ("Password invalid");                            
                             $(".passwordInput").css ("border", "1.5px solid #ed3d3d");
                         }
                     }
                     else {
+                        $("#passwordInput").css ("margin-top", "0px");
                         $("#passwordInputLabel").html ("Password must be given");
                         $(".passwordInput").css ("border", "1.5px solid #ed3d3d");
                     }
