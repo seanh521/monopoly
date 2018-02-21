@@ -19,9 +19,9 @@ app.get('/', function (req, res) {
 
 http.listen(56630, function(){
     console.log('Listening on *:56630');
-    var gameID = Math.random().toString(36).substr(4, 15);
-    games["Game_" + gameID] = createNewGame(gameID);
-    freeGames.push("Game_" + gameID);
+    var newGame = createNewGame ("Game", 8, false, null);
+    games [newGame.id] = newGame
+    freeGames.push(newGame.id);
 });
 
 function createPlayerProfile (name, socket) {
@@ -51,23 +51,19 @@ function createNewPlayer (name, socket) {
 
 function createNewGame (name, maxPlayers, isLocked, password) {
     var game = {};
-    game.name = "Game_" + name;
+    game.id = "Game_" + Math.random().toString(36).substr(4, 15);
+    if (name == "") {
+        game.name = "Game";
+    }
+    else {
+        game.name = name;
+    }    
     game.players = [];
     game.playerNames = [];
     game.playerCount = 0;
-
-    if (typeof (maxPlayers) == "undefined") {
-        game.maxPlayers = 8;
-    }
-    else {
-        game.maxPlayers = maxPlayers;
-    }
-    
-    if (isLocked) {
-        game.isLocked = true;
-        game.password = password
-    }
-
+    game.maxPlayers = maxPlayers;
+    game.isLocked = isLocked;
+    game.password = password;
     game.isFull = false;
 
     game.join = function (name, socket) {
@@ -84,7 +80,7 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     game.removePlayer = function (username) {  
         for (var i in game.players) {
             if (game.players[i].name == username) {
-                console.log ("Removing " + game.players[i].name + " from game (" + game.name + ").")
+                console.log ("Removing " + game.players[i].name + " from game (" + game.id + ").")
                 game.playerCount --;
                 game.broadcastToPlayers ("playerLeft", game.players[i].name);
                 delete game.players[i];
@@ -163,8 +159,44 @@ io.on('connection', function (socket){
             joinGame(socket);
         }        
         socket.emit ("welcomeToGame", "Welcome to the game");
-    })
+    });
 
+    socket.on ('createGame', function (data) {
+        console.log (data);
+        var newGame = createNewGame (data.gameName, data.maxPlayers, data.isPrivate, data.password);
+        games[newGame.id] = newGame;
+        freeGames.push (newGame.id);
+        newGame.join (usersSockets[socket.id], socket);
+        onlinePlayers[usersSockets[socket.id]].currentGameID = newGame.id;
+        var data = {};
+        data.gameID = newGame.id;
+        data.players = newGame.getPlayers();
+        socket.emit("returnCreatedGame", data);
+    });
+
+    socket.on ('selectGame', function (data) {
+        var gamesArray = [];
+        for (var i in freeGames) {
+            var gameData = {};
+            gameData.name = games[freeGames[i]].name;
+            gameData.id = games[freeGames[i]].id;
+            gameData.isLocked = games[freeGames[i]].isLocked;
+            gameData.password = games[freeGames[i]].password;
+            gameData.playerCount = games[freeGames[i]].playerCount;
+            gameData.maxPlayers = games[freeGames[i]].maxPlayers;
+            gamesArray.push (gameData);
+        }
+        socket.emit ("gamesList", gamesArray);
+    });
+
+    socket.on ("selectedGame", function (data) {
+        games[data].join (usersSockets[socket.id], socket);
+        onlinePlayers[usersSockets[socket.id]].currentGameID = data;
+        var gameData = {};
+        gameData.gameID = data;
+        gameData.players = games[data].getPlayers();
+        socket.emit("returnSelectedGame", gameData);
+    });
     socket.on ('rollDice', function (data) {
         var firstDice = Math.floor(Math.random() * 6) + 1;
         var secondDice = Math.floor(Math.random() * 6) + 1;
@@ -183,7 +215,7 @@ io.on('connection', function (socket){
     socket.on ("gameChat", function (data) {
         console.log (data);
         games[onlinePlayers[usersSockets[socket.id]].currentGameID].chat (socket, data, usersSockets[socket.id]);
-    })
+    });
 });
 
 function joinGame (socket) {
@@ -196,9 +228,9 @@ function joinGame (socket) {
         }
     }
     else {
-        var gameID = Math.random().toString(36).substr(4, 15);
-        games["Game_" + gameID] = createNewGame(gameID);
-        freeGames.push("Game_" + gameID);
+        var newGame = createNewGame ("Game", 8, false, null);
+        games [newGame.id] = newGame
+        freeGames.push(newGame.id);
     }
     
     onlinePlayers[usersSockets[socket.id]].currentGameID = freeGames[0];

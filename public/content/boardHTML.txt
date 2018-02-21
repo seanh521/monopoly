@@ -331,10 +331,10 @@
                     Roll Dice
                 </button>
                 <button id="auctionButton" class="gameButton">
-                    Respect Women
+                    Buy Property
                 </button>
                 <button id="buyPropertyButton" class="gameButton">
-                    Acquire Capital
+                    Auction Property
                 </button>
             </div>
         </div>

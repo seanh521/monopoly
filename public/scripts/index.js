@@ -9,23 +9,26 @@ var doubles = [0, 0, 0, 0];
 var turn = 0;
 //End first attempt
 
+var createdGameIsPrivate = false;
+var maxPlayersIsNumeric = false
+
+var lockedGames = {};
+
 document.addEventListener ("DOMContentLoaded", init, false);
 document.addEventListener("keydown", closeMenu, false);
 
 function init () {
-    document.getElementById("submitUsername").addEventListener ("click", setUsername, false);
-
-    //First attempt using Philip's move functions
-    // var playerIcon = document.getElementById ("player1");
-    // players.push(player(playerIcon));
-    //console.log(document.getElementById ("player1"));
-    
-    //End first attempt
+    document.getElementById("submitUsername").addEventListener ("click", setUsername, false);    
 }
 
 function closeMenu (event) {
     if (event.keyCode == 27 && window.getComputedStyle(document.getElementById("menuIcon2"), null).getPropertyValue("opacity") < 1) { 
         document.getElementById("menuButton").click();
+    }
+    if (event.keyCode == 27 && $(".inputPrompt") != null) { 
+        $(".inputPrompt").fadeOut (function () {
+            $(".inputPrompt").remove();
+        });
     }
 }
 
@@ -34,8 +37,8 @@ function player(icon) {
     var player = {};
     player.icon = icon;
     player.position = "0000";
-    //If inJail greater than 0, the player is in jail (max jail can be is 3).
-    //Every turn they stay in jail, inJail is incremented, when they leave it is set to 0 again
+    //If inJail greater than 0, the player isLocje in jail (max jail can be isLocje 3).
+    //Every turn they stay in jail, inJail isLocje incremented, when they leave it isLocje set to 0 again
     //They get out by either rolling a double, have a GOJF card, or pay the toll troll
     player.inJail = 0;
     return player;
@@ -44,6 +47,7 @@ function player(icon) {
 
 function setUsername() {
     if (document.getElementById ("usernameInput").value == false) {
+        $("#usernameInputLabel").html ("Username must be given");
         document.getElementById ("usernameInput").style.border = "1.5px solid #ed3d3d";    
     }
     else {
@@ -65,16 +69,7 @@ socket.on ("nameConfirmation", function (data) {
     });
 });
 
-socket.on ("nameTaken", function (data) {
-    document.getElementById("usernameInput").style.border = "1.5px solid #ed3d3d";
-});
-
-socket.on ("welcomeToGame", function (data){
-    console.log (data)
-});
-
-socket.on ("returnGame", function (data){
-    //console.log ("Game ID: " + data.gameID + "\nPLayers: " + data.players);
+function loadGame (data) {
     $("#content").fadeOut(function () {
         $("#content").load("../content/boardHTML.txt", function () {
                 //$("#content").css("visibility", "visible");
@@ -107,6 +102,20 @@ socket.on ("returnGame", function (data){
             $("#chatInput").blur();
         }
     });
+}
+
+socket.on ("nameTaken", function (data) {
+    $("#usernameInputLabel").html ("This username is already in use");
+    document.getElementById("usernameInput").style.border = "1.5px solid #ed3d3d";
+});
+
+socket.on ("welcomeToGame", function (data){
+    console.log (data)
+});
+
+socket.on ("returnGame", function (data){
+    //console.log ("Game ID: " + data.gameID + "\nPLayers: " + data.players);
+    loadGame (data);
 });
 
 function listPlayers (playersArray) {
@@ -146,7 +155,7 @@ socket.on ("newPlayer", function (data) {
 
 socket.on ("diceRollResult", function (data) {
     //CALL MOVE PLAYER FUNCTIONS
-    players.push(player(document.getElementById ("player1"))); ///TODO - THIS NEEDS TO BE ADJUSTED, IT'S IN A SHIT POSITION AND NEEDS TO BE BETTER IMPLEMENTED, JUST HERE FOR DEMO PURPOSES
+    players.push(player(document.getElementById ("player1"))); ///TO-DO - THIS NEEDS TO BE ADJUSTED, IT'S IN A SHIT POSITION AND NEEDS TO BE BETTER IMPLEMENTED, JUST HERE FOR DEMO PURPOSES
     var total = data.firstDice + data.secondDice;
     console.log ("Is Double: " + data.isDouble + "\nFirst Dice: " + data.firstDice + "\nSecond Dice: " + data.secondDice);
     callMovePlayer (total);
@@ -159,7 +168,7 @@ function callMovePlayer (roll) {
         if(doubles[turn] == 3) {
             //Put player in jail
             players[turn].inJail = 1;
-            //The position of jail is 0010
+            //The position of jail isLocje 0010
             players[turn].position = "0010";
             //Putting the player in the jail tile
             document.getElementById(players[turn].position).appendChild(players[turn].icon);
@@ -260,18 +269,182 @@ function createGameClick () {
             $("#inputArea").width("25%");
             $("#inputArea").height("40%");
             $("#inputArea").fadeIn();
-            $(document).on('click','#createGame', createGame);
+            $(document).on('click', '#createGame', createGame);
+            $(document).on("change keyup paste", "#maxPlayersInput", function (event) {
+                console.log ($("#maxPlayersInput").val()); 
+                if ($.isNumeric($("#maxPlayersInput").val())) {                   
+                    $("#maxPlayersInputLabel").html (""); 
+                    document.getElementById ("maxPlayersInput").style.border = "none";
+                    maxPlayersIsNumeric = true
+                }
+                else {
+                    $("#maxPlayersInputLabel").html ("Only numbers allowed in this input");
+                    document.getElementById ("maxPlayersInput").style.border = "1.5px solid #ed3d3d";
+                    maxPlayersIsNumeric = false
+                }
+            });
+            $("#checkboxLabel").unbind ("click");
+            $("#checkboxLabel").change (function () {
+                if ($("#gamePassword").prop("disabled")) {
+                    $("#gamePassword").prop("disabled", false);
+                    createdGameIsPrivate = true;
+                }
+                else {
+                    $("#gamePassword").prop("disabled", true);
+                    createdGameIsPrivate = false;
+                }                
+            });
         });        
     });
 }
 
 function createGame () {
-    console.log ("Click");
+    console.log ("Create Game clicked")
+    var namePass = false;
+    var maxPlayersPass = false;
+    var passwordPass = false;
+
+    if ($("#gameName").val() != false) {
+        $("#gameNameLabel").html ("");
+        namePass = true;
+    }
+    else {
+        $("#gameNameLabel").html ("Input cannot be left empty");
+        document.getElementById("gameName").style.border = "1.5px solid #ed3d3d";
+        namePass = false;
+    }
+
+    if (maxPlayersIsNumeric || $("#maxPlayersInput").val() == false) {
+         maxPlayersPass = true;
+    }
+    else {
+        maxPlayersPass = false;
+    }
+
+    if (createdGameIsPrivate) {
+        if ($("#gamePassword").val() != false) {
+            $("#gamePasswordLabel").html ("");
+            passwordPass = true;
+        }
+        else {
+            $("#gamePasswordLabel").html ("Password must be given");
+            document.getElementById("gamePassword").style.border = "1.5px solid #ed3d3d";
+            passwordPass = false;
+        }
+    }
+
+    console.log ("Name Pass: " + namePass + "\nMax Players Pass: " + maxPlayersPass);
+    if (namePass && maxPlayersPass) {
+        if (createdGameIsPrivate) {
+            if (passwordPass) {
+                loadCreatedGame ();
+                return;
+            }
+        }
+        loadCreatedGame ();
+    }
 }
 
-function selectGameClick () {
-    socket.emit ("gameSelect", "Select");
+function loadCreatedGame () {
+    console.log("Checking game info for creation")
+    var data = {};
+    data.gameName = $("#gameName").val().toString();
+    
+    if ($("#maxPlayersInput").val() == false) {
+        data.maxPlayers = 8;
+    }
+    else {
+        data.maxPlayers = parseInt ($("#maxPlayersInput").val());
+    }
+    
+    if (createdGameIsPrivate) {
+        data.password = $("#gamePassword").val();
+        data.isPrivate = true;
+    }
+    else {
+        data.password = null;
+        data.isPrivate = false;
+    }
+    socket.emit ("createGame", data);
 }
+
+socket.on ("returnCreatedGame", function (data) {
+    loadGame (data);
+});
+
+function selectGameClick () {
+    socket.emit ("selectGame", "true");
+}
+
+socket.on ("gamesList", function (data) {
+    $("#inputArea").fadeOut(function () {
+        $("#inputArea").height("60%");
+        $("#inputArea").html ("");
+        $("#inputArea").css("overflow-y", "scroll");
+        $("#inputArea").css("display", "unset");
+        $("#inputArea").css("align-items", "unset");
+        $("#inputArea").css("justify-content", "unset");
+        for (var i in data) {
+            console.log (data[i]);
+            var game = document.createElement ("div");
+            game.className = "gamesListElement";
+            game.id = data[i].id;
+            var gameInfo = document.createElement ("div");
+            gameInfo.className = "gameElementInfo";
+            var gameJoin = document.createElement ("button");
+            gameJoin.className = "gameElementJoin";
+            gameJoin.id = game.id = data[i].id;
+            var gameJoinText = document.createTextNode ("Join");
+            gameJoin.append (gameJoinText);
+            var gameInfoText = document.createTextNode (data[i].name + " (" + data[i].id + ")\n" + data[i].playerCount + "/" + data[i].maxPlayers);
+            gameInfo.append (gameInfoText);
+            if (data[i].isLocked) {
+                gameInfo.innerHTML += "<i class='material-icons' id='lockIcon'>lock_outline</i>";
+                lockedGames [data[i].id] = data[i].password;
+                console.log (lockedGames)
+            }
+            game.append (gameInfo);
+            game.append (gameJoin);
+            $("#inputArea").append (game);
+        }
+        $("#inputArea").fadeIn();
+        $(".gameElementJoin").click (function (event) {
+            if (lockedGames[event.target.id] == null) {
+                socket.emit ("selectedGame", event.target.id);
+            }
+            else {
+                var prompt = document.createElement ("div");
+                prompt.className = "inputPrompt";
+                $(prompt).hide().appendTo("#content").fadeIn();
+                $(".inputPrompt").html ("<div><label for='maxPlayers' id='passwordInputLabel' class='warningLabel'></label><input name=\"gamePassword\" type=\"password\" class=\"passwordInput\" autocomplete=\"off\" placeholder=\"Game Password\" onfocus=\"this.placeholder = ''\" onblur=\"this.placeholder = 'Game Password'\"/><button id='joinLockedGameButton'>Join Game</button></div><div class='closeButton'><i class='material-icons' id='closeIcon'>close</i></div>");
+                $("#joinLockedGameButton").click (function () {
+                    if ($(".passwordInput").val() != false) {
+                        if (lockedGames[event.target.id] == $(".passwordInput").val()) {
+                            socket.emit ("selectedGame", event.target.id);
+                        }
+                        else {
+                            $("#passwordInputLabel").html ("Password invalid");
+                            $(".passwordInput").css ("border", "1.5px solid #ed3d3d");
+                        }
+                    }
+                    else {
+                        $("#passwordInputLabel").html ("Password must be given");
+                        $(".passwordInput").css ("border", "1.5px solid #ed3d3d");
+                    }
+                });
+                $(".closeButton").click (function () {
+                    $(".inputPrompt").fadeOut (function () {
+                        $(".inputPrompt").remove();
+                    });
+                });
+            }
+        })
+    });
+});
+
+socket.on ("returnSelectedGame", function (data) {
+    loadGame (data);
+});
 
 socket.on ("gameChat", function (data) {
     var playerName = null;

@@ -46,6 +46,10 @@ body {
     width: 80%;
 }
 
+#gamePassword:disabled {
+    background-color: #cccccc;
+}
+
 .checkboxLabel {
     display: block;
     position: relative;
@@ -78,7 +82,7 @@ body {
 
 /* On mouse-over, add a grey background color */
 .checkboxLabel:hover input ~ .checkmark {
-    background-color: #ccc;
+    background-color: #cccccc;
 }
 
 /* When the checkbox is checked, add a blue background */
@@ -128,6 +132,7 @@ input {
     
     padding: 1.2% 2%;
     margin: 2% 0;
+    margin-top: 0;
 }
 
 button {
@@ -491,4 +496,97 @@ table {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #c4c4c4;
+}
+
+.gamesListElement {
+    margin: auto;
+    width: 95%;
+    height: 15%;
+    margin-top: 1%;
+    border-bottom: 2px solid #404142;
+    white-space: pre;
+}
+
+.gamesListElement:last-child {
+    border-bottom: none;
+}
+
+.gameElementInfo {
+    float: left;
+    width: 50%;
+    margin-left: 5px;
+}
+
+.gameElementJoin {
+    float: right;
+    width: 10%;
+    margin-right: 5px;
+
+    font-size: 150%;
+
+    border: none;
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    padding: 5px;
+
+    color: white;
+    background-color: rgba(19, 128, 232, 0.7);
+}
+
+#lockIcon {
+    margin-left: 25%;
+}
+
+.inputPrompt {
+    width: 40%;
+    height: 25%;
+    position: absolute;
+    background-color: #666666;
+    border: 10px solid #2087ee;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.passwordInput {    
+    padding: 1.2% 2%;
+    width: 100%;
+    font-size: 150%;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    
+    padding: 1.2% 2%;
+    margin: 2% 0;
+}
+
+.closeButton {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 98%;
+    bottom: 93%;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #bc3131;
+    cursor: pointer;
+}
+
+#closeIcon {
+    color: #cccccc;
+}
+
+.closeButton:hover {    
+    background-color: #bc1212;
+}
+
+.warningLabel {
+    color: #ed3d3d;
+    font-size: 12px;
+
 }
