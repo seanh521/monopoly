@@ -95,12 +95,18 @@ function loadGame (data) {
             var node = document.createElement ("span");
             var text = document.createTextNode ($("#chatInput").val());
             node.className = "outgoingMessage";
+            var time = new Date().toLocaleTimeString();
+            node.title = time;
             node.append(text);            
             // $("#chatWindow").append(playerName); 
             $("#chatWindow").append(node);
-            $("#chatWindow").scrollTop($("#chatWindow").height());
+            //$("#chatWindow").scrollTop($("#chatWindow").height());
+            $("#chatWindow").animate({ scrollTop: $('#chatWindow').prop("scrollHeight")}, 1000);
             $("#chatInput").val("");
-            $("#chatInput").blur();
+            
+            // window.setTimeout (function () {
+            //     $("#chatInput").blur();
+            // }, 600000);
         }
     });
 }
@@ -468,12 +474,16 @@ socket.on ("gameChat", function (data) {
     var text = document.createTextNode (data.message);
     node.id = data.sender;
     node.className = "incomingMessage";
+    var time = new Date().toLocaleTimeString();
+    node.title = time;
     node.append(text);
     if (playerName != null) {
         $("#chatWindow").append(playerName);
     }    
     $("#chatWindow").append(node);
-    $("#chatWindow").scrollTop($("#chatWindow").height());
+    //$("#chatWindow").scrollTop($("#chatWindow").height());
+    $("#chatWindow").animate({ scrollTop: $('#chatWindow').prop("scrollHeight")}, 1000);
+    //console.log($("#chatWindow").height());
 });
 
 socket.on ("serverMessage", function (data) {
@@ -484,7 +494,10 @@ function serverMessage (message) {
     var node = document.createElement ("span");
     var text = document.createTextNode (message);
     node.className = "serverMessage";
+    var time = new Date().toLocaleTimeString();
+    node.title = time;
     node.append(text);
     $("#chatWindow").append(node);
-    $("#chatWindow").scrollTop($("#chatWindow").height());
+    //$("#chatWindow").scrollTop($("#chatWindow").height());
+    $("#chatWindow").animate({ scrollTop: $('#chatWindow').prop("scrollHeight")}, 1000);
 }

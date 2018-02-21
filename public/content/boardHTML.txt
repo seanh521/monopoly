@@ -341,7 +341,7 @@
         <div id="gameChat" class="gameControlSection">
             <div id="chatWindow">
             </div>
-            <input id="chatInput"autocomplete="off" placeholder="Type message here" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Type message here'"></input>
+            <input id="chatInput"autocomplete="off" placeholder="Type message here" onfocus="this.placeholder = 'Type message here'" onblur="this.placeholder = 'Type message here'"></input>
         </div>      
     </div>
 </div>
