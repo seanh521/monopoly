@@ -9,6 +9,15 @@ var doubles = [0, 0, 0, 0];
 var turn = 0;
 //End first attempt
 
+var diceUnicode = {
+    1: "&#9856;",
+    2: "&#9857;",
+    3: "&#9858;",
+    4: "&#9859;",
+    5: "&#9860;",
+    6: "&#9861;"
+}
+
 var createdGameIsPrivate = false;
 var maxPlayersIsNumeric = false
 
@@ -165,6 +174,12 @@ socket.on ("diceRollResult", function (data) {
     //CALL MOVE PLAYER FUNCTIONS
     players.push(player(document.getElementById ("player1"))); ///TO-DO - THIS NEEDS TO BE ADJUSTED, IT'S IN A SHIT POSITION AND NEEDS TO BE BETTER IMPLEMENTED, JUST HERE FOR DEMO PURPOSES
     var total = data.firstDice + data.secondDice;
+    console.log (diceUnicode[data.firstDice])
+    $(".dice").fadeOut (function () {
+        $("#firstDice").children("div").html (diceUnicode[data.firstDice]);
+        $("#secondDice").children("div").html (diceUnicode[data.secondDice]);
+        $(".dice").fadeIn ();
+    });    
     console.log ("Is Double: " + data.isDouble + "\nFirst Dice: " + data.firstDice + "\nSecond Dice: " + data.secondDice);
     callMovePlayer (total);
 })

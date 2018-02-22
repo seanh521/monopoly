@@ -154,9 +154,9 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td></td>
+                <td id="firstDice" class="diceDisplay"><div class="dice"></div></td>
                 <td id= "center"></td>
-                <td></td>
+                <td id="secondDice" class="diceDisplay"><div class="dice"></div></td>
                 <td></td>
                 <td></td>
                 <td></td>
