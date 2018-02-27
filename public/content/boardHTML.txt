@@ -327,7 +327,7 @@
 
         <div id="gameButtons" class="gameControlSection">
             <div>
-                <button id="rollDiceButton" class="gameButton">
+                <button id="rollDiceButton" class="gameButton" disabled>
                     Roll Dice
                 </button>
                 <button id="auctionButton" class="gameButton">

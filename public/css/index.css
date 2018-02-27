@@ -590,3 +590,20 @@ table {
     justify-content: center;
     margin-top: -10%;
 }
+
+.endTurnPrompt {
+    width: 20%;
+    height: 15%;
+    position: absolute;
+    background-color: #666666;
+    border: 2px solid #2087ee;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#endItAll {
+    width: 105%;
+    padding: 15px;
+}

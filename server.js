@@ -35,17 +35,31 @@ function createPlayerProfile (name, socket) {
 function createNewPlayer (name, socket) {
     var player = {};
     player.name = name;
+    player.id = null; //ID attribute of player icon
+    player.position = "0000";
+    player.doublesRolled = 0;
     player.socket = socket;
     player.money = 0;
+    player.assets = []
+
     player.properties = {};
-    player.properties.brown = 0;
-    player.properties.pink = 0;
-    player.properties.lightBlue = 0;
-    player.properties.orange = 0;
-    player.properties.red = 0;
-    player.properties.green = 0;
-    player.properties.blue = 0;
+    player.properties["brown"] = [];
+    player.properties["pink"] = [];
+    player.properties["lightblue"] = [];
+    player.properties["orange"] = [];
+    player.properties["red"] = [];
+    player.properties["green"] = [];
+    player.properties["blue"] = [];
+    player.properties["yellow"] = [];
+    player.properties["railroad"] = [];
+    player.properties["utilities"] = [];
+
     player.getOutOfJail = 0;
+    player.jail = {};
+    player.jail.jailTag = false;
+    player.jail.jailRoll = 0;
+    player.jail.justReleased = false;
+
     return player;
 }
 
@@ -60,6 +74,7 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     }    
     game.players = [];
     game.playerNames = [];
+    game.playerTurnIndex = 0;
     game.playerCount = 0;
     game.maxPlayers = maxPlayers;
     game.isLocked = isLocked;
@@ -71,6 +86,22 @@ function createNewGame (name, maxPlayers, isLocked, password) {
         game.playerNames.push(name);
         game.playerCount ++;
         game.broadcastToPlayers ("newPlayer", name);
+        if (game.playerCount == 1) {
+            game.playerTurnIndex = -1;
+            game.nextPlayer ();
+        }
+    }
+
+    game.nextPlayer = function () {
+        if (game.playerTurnIndex < game.playerCount - 1) {
+            game.playerTurnIndex ++;
+        }
+        else {
+            game.playerTurnIndex = 0;
+        }
+        console.log(game.playerTurnIndex);
+        console.log ("Sending turn to " + game.playerNames[game.playerTurnIndex] + " at " + users[game.playerNames[game.playerTurnIndex]].id +  " (" + new Date().toLocaleTimeString() + ")");
+        users[game.playerNames[game.playerTurnIndex]].emit("yourTurn", "true");
     }
 
     game.getPlayers = function () {
@@ -84,7 +115,9 @@ function createNewGame (name, maxPlayers, isLocked, password) {
                 game.playerCount --;
                 game.broadcastToPlayers ("playerLeft", game.players[i].name);
                 delete game.players[i];
-                delete game.playerNames[i];                
+                game.players.filter(Boolean);
+                delete game.playerNames[i];
+                game.playerNames.filter(Boolean);          
                 if (game.playerCount == 0) {
                     game.players = [];
                     game.playerNames = [];
@@ -101,14 +134,13 @@ function createNewGame (name, maxPlayers, isLocked, password) {
                     io.sockets.connected[users[game.playerNames[i]].id].emit(event, data);
                 }
                 catch (err) {
-                    console.log ("There was an error trying to broadcast to " + game.playerNames[i]);
+                    console.log ("There was an error trying to broadcast to " + game.playerNames[i] + ". (" + err.message + ")");
                 }
             }
         }
     }
 
     game.chat = function (socket, message, player) {
-        console.log (message);
         for (var i in game.playerNames) {
             if (game.playerCount > 0 && socket.id != users[game.playerNames[i]].id) {
                 //Socket gives null reference as the socket is disconnected, maybe add some logic for leaving the game (try-catch?)
@@ -137,7 +169,6 @@ io.on('connection', function (socket){
             }
             delete users[usersSockets[socket.id]];
             delete usersSockets[socket.id];
-            console.log (users);
         }
     });
 
@@ -197,6 +228,7 @@ io.on('connection', function (socket){
         gameData.players = games[data].getPlayers();
         socket.emit("returnSelectedGame", gameData);
     });
+
     socket.on ('rollDice', function (data) {
         var firstDice = Math.floor(Math.random() * 6) + 1;
         var secondDice = Math.floor(Math.random() * 6) + 1;
@@ -212,8 +244,11 @@ io.on('connection', function (socket){
         games[onlinePlayers[usersSockets[socket.id]].currentGameID].broadcastToPlayers ("diceRollResult", data);
     });
 
+    socket.on ("turnEnded", function () {
+        games[onlinePlayers[usersSockets[socket.id]].currentGameID].nextPlayer ();
+    });
+
     socket.on ("gameChat", function (data) {
-        console.log (data);
         games[onlinePlayers[usersSockets[socket.id]].currentGameID].chat (socket, data, usersSockets[socket.id]);
     });
 });
@@ -224,7 +259,7 @@ function joinGame (socket) {
             games[freeGames[0]].join(usersSockets[socket.id], socket);
         }
         catch (err){
-            console.log ("There was an error adding a player to the game.");
+            console.log ("There was an error adding a player to the game. (" + err.message + ")");
         }
     }
     else {

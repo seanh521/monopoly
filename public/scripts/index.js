@@ -9,6 +9,8 @@ var doubles = [0, 0, 0, 0];
 var turn = 0;
 //End first attempt
 
+var myTurn = false;
+
 var diceUnicode = {
     1: "&#9856;",
     2: "&#9857;",
@@ -86,6 +88,9 @@ function loadGame (data) {
                 playerList = data.players;            
                 listPlayers (playerList);
                 serverMessage ("Welcome to the Game");
+                if (myTurn) {
+                    $("#rollDiceButton").prop("disabled", false);
+                }
         });
     });
 
@@ -131,7 +136,6 @@ socket.on ("welcomeToGame", function (data){
 });
 
 socket.on ("returnGame", function (data){
-    //console.log ("Game ID: " + data.gameID + "\nPLayers: " + data.players);
     loadGame (data);
 });
 
@@ -170,17 +174,20 @@ socket.on ("newPlayer", function (data) {
     }    
 });
 
+socket.on ("yourTurn", function () {
+    myTurn = true;
+    $("#rollDiceButton").prop("disabled", false);
+});
+
 socket.on ("diceRollResult", function (data) {
     //CALL MOVE PLAYER FUNCTIONS
     players.push(player(document.getElementById ("player1"))); ///TO-DO - THIS NEEDS TO BE ADJUSTED, IT'S IN A SHIT POSITION AND NEEDS TO BE BETTER IMPLEMENTED, JUST HERE FOR DEMO PURPOSES
     var total = data.firstDice + data.secondDice;
-    console.log (diceUnicode[data.firstDice])
     $(".dice").fadeOut (function () {
         $("#firstDice").children("div").html (diceUnicode[data.firstDice]);
         $("#secondDice").children("div").html (diceUnicode[data.secondDice]);
         $(".dice").fadeIn ();
-    });    
-    console.log ("Is Double: " + data.isDouble + "\nFirst Dice: " + data.firstDice + "\nSecond Dice: " + data.secondDice);
+    });
     callMovePlayer (total);
 })
 
@@ -257,7 +264,6 @@ function sleep(ms) {
 
 async function movePlayer(playr, spacesToMove, turn) { //async
     //Gets first two numbers in the id
-    //console.log (players[0]);
     var left = parseInt(players[turn].position.substring(0, 2));
     //Gets the last two numbers in the id
     var right = parseInt(players[turn].position.substring(2, 4));
@@ -279,7 +285,30 @@ async function movePlayer(playr, spacesToMove, turn) { //async
     }
 
     players[turn].position = newPosition;
-    $("#rollDiceButton").removeAttr("disabled");
+    endTurn ();    
+}
+
+function endTurn () {
+    if (myTurn) {
+        var prompt = document.createElement ("div");
+        prompt.className = "endTurnPrompt";
+        $(prompt).hide().appendTo("#content").fadeIn();
+        $(".endTurnPrompt").html ("<div><button id='endItAll'>End it all</button></div>");
+        $("#endItAll").click (function () {
+            $(".endTurnPrompt").fadeOut(function () {
+                $(".endTurnPrompt").remove();
+                socket.emit ("turnEnded", "true");
+            });            
+        });
+        window.setTimeout (function () {
+            myTurn = false;
+            socket.emit ("turnEnded", "true");
+            $(".endTurnPrompt").fadeOut(function () {
+                $(".endTurnPrompt").remove();
+                socket.emit ("turnEnded", "true");
+            });
+        }, 5000);
+    }
 }
 
 function joinGameClick () {
@@ -294,7 +323,6 @@ function createGameClick () {
             $("#inputArea").fadeIn();
             $(document).on('click', '#createGame', createGame);
             $(document).on("change keyup paste", "#maxPlayersInput", function (event) {
-                console.log ($("#maxPlayersInput").val()); 
                 if ($.isNumeric($("#maxPlayersInput").val())) {                   
                     $("#maxPlayersInputLabel").html (""); 
                     $("#maxPlayersInput").css ("margin-top", "14px");
@@ -324,7 +352,6 @@ function createGameClick () {
 }
 
 function createGame () {
-    console.log ("Create Game clicked")
     var namePass = false;
     var maxPlayersPass = false;
     var passwordPass = false;
@@ -362,7 +389,6 @@ function createGame () {
         }
     }
 
-    console.log ("Name Pass: " + namePass + "\nMax Players Pass: " + maxPlayersPass);
     if (namePass && maxPlayersPass) {
         if (createdGameIsPrivate) {
             if (passwordPass) {
@@ -375,7 +401,6 @@ function createGame () {
 }
 
 function loadCreatedGame () {
-    console.log("Checking game info for creation")
     var data = {};
     data.gameName = $("#gameName").val().toString();
     
@@ -414,7 +439,6 @@ socket.on ("gamesList", function (data) {
         $("#inputArea").css("align-items", "unset");
         $("#inputArea").css("justify-content", "unset");
         for (var i in data) {
-            console.log (data[i]);
             var game = document.createElement ("div");
             game.className = "gamesListElement";
             game.id = data[i].id;
@@ -430,7 +454,6 @@ socket.on ("gamesList", function (data) {
             if (data[i].isLocked) {
                 gameInfo.innerHTML += "<i class='material-icons' id='lockIcon'>lock_outline</i>";
                 lockedGames [data[i].id] = data[i].password;
-                console.log (lockedGames)
             }
             game.append (gameInfo);
             game.append (gameJoin);
@@ -496,9 +519,7 @@ socket.on ("gameChat", function (data) {
         $("#chatWindow").append(playerName);
     }    
     $("#chatWindow").append(node);
-    //$("#chatWindow").scrollTop($("#chatWindow").height());
     $("#chatWindow").animate({ scrollTop: $('#chatWindow').prop("scrollHeight")}, 1000);
-    //console.log($("#chatWindow").height());
 });
 
 socket.on ("serverMessage", function (data) {
@@ -513,6 +534,5 @@ function serverMessage (message) {
     node.title = time;
     node.append(text);
     $("#chatWindow").append(node);
-    //$("#chatWindow").scrollTop($("#chatWindow").height());
     $("#chatWindow").animate({ scrollTop: $('#chatWindow').prop("scrollHeight")}, 1000);
 }
