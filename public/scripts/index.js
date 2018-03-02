@@ -20,6 +20,48 @@ var diceUnicode = {
     6: "&#9861;"
 }
 
+var properties = (function() {
+    var json = null;
+    $.ajax({
+        'async': true,
+        'global': false,
+        'url': "scripts/properties.json",
+        'dataType': "json",
+        'success': function (data) {
+            json = data;
+        }
+    });
+    return json;
+})();
+
+var communityChestArray = (function() {
+    var json = null;
+    $.ajax({
+        'async': true,
+        'global': false,
+        'url': "scripts/communityChest.json",
+        'dataType': "json",
+        'success': function (data) {
+            json = data;
+        }
+    });
+    return json;
+})();
+
+var properties = (function() {
+    var json = null;
+    $.ajax({
+        'async': true,
+        'global': false,
+        'url': "scripts/chances.json",
+        'dataType': "json",
+        'success': function (data) {
+            json = data;
+        }
+    });
+    return json;
+})();
+
 var createdGameIsPrivate = false;
 var maxPlayersIsNumeric = false
 
@@ -30,6 +72,19 @@ document.addEventListener("keydown", closeMenu, false);
 
 function init () {
     document.getElementById("submitUsername").addEventListener ("click", setUsername, false);    
+}
+
+function shuffles(array){
+    var i =0;
+    var j = 0;
+    var temp = null;
+  
+    for(i = array.length-1;i>0;i-=1){
+        j = Math.floor(Math.random()*(i+1));
+        temp=array[i];
+        array[i]=array[j];
+        array[j]=temp;
+    }
 }
 
 function closeMenu (event) {
@@ -63,8 +118,8 @@ function setUsername() {
         document.getElementById ("usernameInput").style.border = "1.5px solid #ed3d3d";    
     }
     else {
-        ///////TO-DO - Strip the input for spaces and most special characters
-        username = document.getElementById("usernameInput").value;
+        username = document.getElementById("usernameInput").value.replace(/\s/g,'');
+        console.log (username);
         socket.emit ("setName", username);
     }
 }
@@ -109,7 +164,8 @@ function loadGame (data) {
             var node = document.createElement ("span");
             var text = document.createTextNode ($("#chatInput").val());
             node.className = "outgoingMessage";
-            var time = new Date().toLocaleTimeString();
+
+            var time = new Date().toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
             node.title = time;
             node.append(text);            
             // $("#chatWindow").append(playerName); 
@@ -512,7 +568,7 @@ socket.on ("gameChat", function (data) {
     var text = document.createTextNode (data.message);
     node.id = data.sender;
     node.className = "incomingMessage";
-    var time = new Date().toLocaleTimeString();
+    var time = new Date().toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
     node.title = time;
     node.append(text);
     if (playerName != null) {
@@ -530,7 +586,7 @@ function serverMessage (message) {
     var node = document.createElement ("span");
     var text = document.createTextNode (message);
     node.className = "serverMessage";
-    var time = new Date().toLocaleTimeString();
+    var time = new Date().toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
     node.title = time;
     node.append(text);
     $("#chatWindow").append(node);

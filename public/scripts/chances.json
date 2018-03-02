@@ -1,0 +1,74 @@
+{
+	"chanceArray": [{
+			"Name": "Get Out of Jail Free",
+			"Id": 6
+		},
+
+		{
+			"Name": "Go directly to Jail. Do not pass Go, do not collect 200",
+			"Id": 8
+		},
+
+		{
+			"Name": "Make general repairs on all your property. For each house pay 25. For each hotel 100",
+			"Id": 9,
+			"Amount": [25, 100]
+		},
+
+		{
+			"Name": "Advance to nearest Travel Tile, paying owner twice the rent due. If Tile is unowned, you may buy it from the Bank",
+			"Id": 14
+		},
+
+		{
+			"Name": "Advance to nearest Travel Tile, paying owner twice the rent due. If Tile is unowned, you may buy it from the Bank",
+			"Id": 14
+		},
+
+		{
+			"Name": "Move forward 3 spaces",
+			"Id": 15
+		},
+
+		{
+			"Name": "Go Back 3 Spaces",
+			"Id": 16
+		},
+
+		{
+			"Name": "Advance to the Western Gateway Building",
+			"Id": 17,
+			"Tile": "0100"
+		},
+
+		{
+			"Name": "Advance to Free Parking. If you pass Go, collect 200",
+			"Id": 17,
+			"Tile": "1010"
+		},
+
+		{
+			"Name": "Advance to HillBillys. If you pass Go, collect 200",
+			"Id": 17,
+			"Tile": "1006"
+		},
+
+		{
+			"Name": "Advance to Go (Collect 200)",
+			"Id": 17,
+			"Tile": "0000"
+		},
+
+		{
+			"Name": "Advance to Castle White If you pass Go, collect 200",
+			"Id": 17,
+			"Tile": "0110"
+		},
+
+		{
+			"Name": "Advance token to the nearest Utility.",
+			"Id": 22
+		}
+
+	]
+}

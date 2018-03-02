@@ -1,0 +1,79 @@
+{
+	"communityChestArray": [{
+            "Name": "You are assessed for street repairs. 40 per house, 115 per hotel",
+            "Id": 9,
+            "Amount": [40, 115]
+          },
+      
+          {
+              "Name": "Bank error in your favor. Collect 200",
+              "Id": 1,
+              "Amount": 200
+          },
+      
+          {
+              "Name": "Doctor's fees. Pay 50",
+              "Id": 2,
+              "Amount": 50
+          },
+      
+          {
+              "Name":"From sale of stock you get 50",
+              "Id": 3,
+              "Amount": 50
+          },
+          {
+              "Name": "Grand Opera Night, Collect 50 from every player for opening night seats",
+              "Id": 4,
+              "Amount": 50
+          },
+      
+          {
+              "Name": "Holiday Fund matures. Receive 100",
+              "Id": 5,
+              "Amount": 100
+          },
+      
+          {
+              "Name": "Get Out of Jail Free",
+              "Id": 6
+          },
+      
+          {
+              "Name": "Income tax refund. Collect 25",
+              "Id": 7,
+              "Amount": 25
+          },
+      
+          {
+              "Name": " Go directly to jail. Do not pass Go. Do not collect 200",
+              "Id": 8
+          },
+      
+      
+          {
+              "Name": "It is your birthday Collect 10 from each player ",
+              "Id": 10,
+              "Amount": 10
+          },
+      
+          {
+              "Name": "Life insurance matures Collect 100",
+              "Id": 11,
+              "Amount": 100
+          },
+      
+          {
+              "Name": "Pay hospital fees of 100",
+              "Id": 12,
+              "Amount": 100
+          },
+      
+          {
+              "Name": "Pay school fees of 150",
+              "Id": 13,
+              "Amount": 150
+          }
+
+	]
+}

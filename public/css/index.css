@@ -11,6 +11,8 @@ body {
     margin: 0;
 
     display: flex;
+    align-content: center;
+    justify-content: center;
 
     background-color: #404142;
 
@@ -19,13 +21,15 @@ body {
 
 #content {
     z-index: 1;
-    height: 100%;
+    min-height: 100%;
     width: 100%;
     position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: width 1s;
+    /* overflow-y: auto; */
+    overflow: auto;
 }
 
 #inputArea {
@@ -272,7 +276,6 @@ button:disabled, button[disabled]{
 }
 
 table {
-    table-layout: fixed;
     border: none;
     text-align: center;
     table-layout:fixed;
@@ -282,9 +285,15 @@ table {
 }
 
 #board {
-    background-image: url('../images/Board02.jpg');
-    background-size: 700px 700px;
+    background-image: url('../images/Board.png');
+    /* background-size: 700px 700px; */
     background-repeat: no-repeat;
+    /* background-size: 100% 100%; */
+    /* position: absolute; */
+    -webkit-background-size: contain;
+    -moz-background-size: contain;
+    -o-background-size: contain;
+    background-size: contain;
 }
 
 .edge {
@@ -469,7 +478,7 @@ table {
 
 ::-webkit-scrollbar-thumb {
     background: #f1f1f1;
-    border-radius: 1px;
+    border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
