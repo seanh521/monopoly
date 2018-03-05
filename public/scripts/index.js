@@ -3,13 +3,15 @@ var socket = io();
 var username = "";
 var playerList = [];
 
-//First attempt using Philip's move functions
-var players = [];
+var playerIcons = ["player1", "player2", "player3", "player4"];
+var playerIconIndex = 0;
+
+var players = {};
 var doubles = [0, 0, 0, 0];
 var turn = 0;
-//End first attempt
 
 var myTurn = false;
+var haveRolled = false;
 
 var diceUnicode = {
     1: "&#9856;",
@@ -68,10 +70,14 @@ var maxPlayersIsNumeric = false
 var lockedGames = {};
 
 document.addEventListener ("DOMContentLoaded", init, false);
-document.addEventListener("keydown", closeMenu, false);
 
 function init () {
     document.getElementById("submitUsername").addEventListener ("click", setUsername, false);    
+    $("#usernameInput").on ("keypress", function (event) {
+        if (event.keyCode == 13) {
+            $("#submitUsername").click();
+        }
+    });
 }
 
 function shuffles(array){
@@ -87,29 +93,188 @@ function shuffles(array){
     }
 }
 
-function closeMenu (event) {
-    if (event.keyCode == 27 && window.getComputedStyle(document.getElementById("menuIcon2"), null).getPropertyValue("opacity") < 1) { 
-        document.getElementById("menuButton").click();
-    }
-    if (event.keyCode == 27 && $(".inputPrompt") != null) { 
-        $(".inputPrompt").fadeOut (function () {
-            $(".inputPrompt").remove();
-        });
-    }
+function getChanceCard() {
+    var card = chanceArray.shift();
+    chanceArray.push(card);
+    fadeCardOut(card, "chanceCard");
 }
 
 //First attempt using Philip's move functions
-function player(icon) {
+function createPlayer(name) { //icon is auto assigned for now
     var player = {};
-    player.icon = icon;
-    player.position = "0000";
-    //If inJail greater than 0, the player isLocje in jail (max jail can be isLocje 3).
-    //Every turn they stay in jail, inJail isLocje incremented, when they leave it isLocje set to 0 again
-    //They get out by either rolling a double, have a GOJF card, or pay the toll troll
-    player.inJail = 0;
+    player.name = name; //done
+    player.id = null//playerIcons[playerIconIndex]; //done
+    player.position = "0000"; //done
+    player.doublesRolled = 0; //The number of doubles the player has rolled in a row
+    player.money = 1500; //done
+    player.assets = []; //done
+
+    //player.railroadsOwned = 0;
+    //player.utilitiesOwned = 0;
+
+    player.properties = {};
+    player.properties["brown"] = [];
+    player.properties["pink"] = [];
+    player.properties["lightblue"] = [];
+    player.properties["orange"] = [];
+    player.properties["red"] = [];
+    player.properties["green"] = [];
+    player.properties["blue"] = [];
+    player.properties["yellow"] = [];
+    player.properties["railroad"] = [];
+    player.properties["utilities"] = [];
+
+    player.getOutOfJail = 0;
+    player.jail = {};
+    player.jail.jailTag = false;
+    player.jail.jailRoll = 0;
+    player.jail.justReleased = false;
+
+    playerIconIndex ++;
+
     return player;
 }
-//End first attempt
+
+function chance(playerPos, player, card){
+    if (card.Id == 6 ){
+        setJailCard();
+        decideOnNextPlayer();
+    } else if (card.Id == 8){
+        placeInJail();
+    } else if (card.Id == 17) {
+        //Advances player to appropriate tile
+        advance(card.Tile, player);
+    } else if(card.Id == 15){
+        movePlayer(player, 3); // moves player forward 3 spaces
+    } else if (card.Id == 16){
+        moveBackwards(player, 3);
+    } else if (card.Id == 9 ){
+        // must calculate the amount of houses and hotels the player has.
+        calcHouseHotels(card.Amount[0],card.Amount[1]); // calculates players houses and hotels
+        decideOnNextPlayer();
+    } else if (card.Id == 14) {
+        doubleRentFromChance = true;
+        var playersLeft = parseInt(playerPos.substring(0, 2));
+        var playersRight = parseInt(playerPos.substring(2, 4));
+        var spaces;
+        if(playerPos == "0007") {
+            spaces = distanceCalculator("0510", playerPos);
+        } else if(playerPos == "1008") {
+            spaces = distanceCalculator("1005", playerPos);
+        } else if("0400") {
+            spaces = distanceCalculator("0005", playerPos);
+        }
+        movePlayer(players[turn], spaces);
+    } else if (card.Id == 22) {
+        // advances player to nearest utility
+        var shortest;
+        var utilDist1 = distanceCalculator("0210", playerPos);
+        var utilDist2 = distanceCalculator("1002", playerPos);
+        if(utilDist1 < utilDist2) {
+            shortest = utilDist1;
+        } else {
+            shortest = utilDist2;
+        }
+
+        movePlayer(player, shortest);
+    }
+}    
+
+function setJailCard(){
+    players[turn].jailCard = true;
+    alert("Player received Get out of Jail Free Card");
+}
+
+function calcHouseHotels(housePrice, hotelPrice) {
+    var houses = 0;
+    var hotels = 0;
+    var houseP = 0;
+    var hotelP = 0;
+    var cost;
+    for (var i = 0; i < players[turn].assets.length; i++){
+        // line below checks the current properties object for current players assets in which it can find number of houses
+        if (properties[players[turn].assets[i]].numberOfHouses == 5){
+            hotels += 1;
+        } else {
+            houses += properties[players[turn].assets[i]].numberOfHouses;
+        }
+    }
+    houseP = houses * housePrice;
+    hotelP = hotels * hotelPrice;
+    cost = houseP + hotelP;
+    alert('Total Houses: '+houses +', Total Hotels: '+hotels + ', Total Repairs Cost: '+cost);
+    //document.getElementById("endTurn").removeAttribute("disabled");
+    //comChestFine(cost);
+}
+
+function advance(tile, playerObj){
+    var spaces = distanceCalculator(tile, playerObj.position);
+    movePlayer(playerObj, spaces);
+    //document.getElementById(tile).appendChild(players[turn].id);
+}
+
+function getCommChestCard() {
+    var card = communityChestArray.shift(); // takes top card from array
+    //var card = communityChestArray[4];
+    communityChestArray.push(card);
+    fadeCardOut(card, "commChestCard");
+}
+
+async function communityChest(playerPos, player, card){
+    /*await sleep(500);
+    var card = communityChestArray.shift(); // takes top card from array
+    //var card = communityChestArray[4];
+    communityChestArray.push(card);  // adds card to end of array*/
+  
+    if (card.Id == 6){
+        setJailCard(); // player receives get out of jail free card
+        decideOnNextPlayer();
+    } else if (card.Id == 1 || card.Id == 3 || card.Id == 5 || card.Id == 7 || card.Id ==11) {
+        // community chest rewarding players
+        //alert(card.Name);
+        comChestCollect(card.Amount); // collect reward
+        decideOnNextPlayer();
+    } else if(card.Id == 2 || card.Id == 12 || card.Id == 13){
+        // community chest fining player players
+        //alert(card.Name);
+        comChestFine(card.Amount); // fined amount on card
+        decideOnNextPlayer();
+    } else if (card.Id == 8){
+        //go to jail card drawn from community chest
+        //alert(card.Name);
+        placeInJail(); // place player in jail
+    } else if (card.Id == 4 || card.Id == 10){
+        // must collect certain amount from each player
+        alert(card.Name + ', Amount Credited: '+ card.Amount * (players.length -1));
+        playerCollect(card.Amount); //collects amount stated on card from each player
+        decideOnNextPlayer();
+    } else if (card.Id == 9){
+        // calculate the amount of houses and hotels player has
+        //alert(card.Name);
+        calcHouseHotels(card.Amount[0],card.Amount[1]); // calculates players houses and hotels
+        decideOnNextPlayer();
+    }
+}
+
+function comChestCollect(amount){
+    players[turn].money += amount;
+}
+
+function comChestFine(amount){
+    players[turn].money -= amount;
+}
+
+function playerCollect(amount){
+    // collects amount from each player and adds to current player.
+    var collection = 0;
+    for(var i = 0; i < players.length; i++){
+        if(players[i] != players[turn]){
+            players[i].money -=amount;
+            collection += amount;
+        }
+    }
+    players[turn].money += collection;
+}
 
 function setUsername() {
     if (document.getElementById ("usernameInput").value == false) {
@@ -119,7 +284,6 @@ function setUsername() {
     }
     else {
         username = document.getElementById("usernameInput").value.replace(/\s/g,'');
-        console.log (username);
         socket.emit ("setName", username);
     }
 }
@@ -127,6 +291,7 @@ function setUsername() {
 socket.on ("nameConfirmation", function (data) {
     $("#inputArea").fadeOut(function () {
         $("#inputArea").load("../content/gameSelect.txt", function () {
+            $("#inputArea").width("60%");
             $("#inputArea").width("60%");
             $("#inputArea").fadeIn();
             $(document).on('click','#joinGameButton', joinGameClick);
@@ -139,7 +304,7 @@ socket.on ("nameConfirmation", function (data) {
 function loadGame (data) {
     $("#content").fadeOut(function () {
         $("#content").load("../content/boardHTML.txt", function () {
-                //$("#content").css("visibility", "visible");
+                $("#content").attr ("id", "contentWithBoard");
                 playerList = data.players;            
                 listPlayers (playerList);
                 serverMessage ("Welcome to the Game");
@@ -151,16 +316,13 @@ function loadGame (data) {
 
     $(document).on('click','#rollDiceButton',function(){
         $("#rollDiceButton").attr("disabled", "disabled");
+        haveRolled = true;
         socket.emit ("rollDice", "true");
     });
 
     $(document).keypress ("#chatInput", function (event) {
         if (event.keyCode == 13 && $.trim($("#chatInput").val()) != 0) {
             socket.emit ("gameChat", $("#chatInput").val());
-            // var playerName = document.createElement ("p");
-            // playerName.className = "senderUsername";
-            // var playerNameText = document.createTextNode ("You");
-            // playerName.appendChild (playerNameText);
             var node = document.createElement ("span");
             var text = document.createTextNode ($("#chatInput").val());
             node.className = "outgoingMessage";
@@ -168,15 +330,13 @@ function loadGame (data) {
             var time = new Date().toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
             node.title = time;
             node.append(text);            
-            // $("#chatWindow").append(playerName); 
             $("#chatWindow").append(node);
-            //$("#chatWindow").scrollTop($("#chatWindow").height());
             $("#chatWindow").animate({ scrollTop: $('#chatWindow').prop("scrollHeight")}, 1000);
             $("#chatInput").val("");
             
-            // window.setTimeout (function () {
-            //     $("#chatInput").blur();
-            // }, 600000);
+            window.setTimeout (function () {
+                $("#chatInput").blur();
+            }, 60000);
         }
     });
 }
@@ -188,7 +348,7 @@ socket.on ("nameTaken", function (data) {
 });
 
 socket.on ("welcomeToGame", function (data){
-    console.log (data)
+    console.log (data);
 });
 
 socket.on ("returnGame", function (data){
@@ -198,6 +358,7 @@ socket.on ("returnGame", function (data){
 function listPlayers (playersArray) {
     for (var i in playersArray) {
         if (playersArray[i] != null) {
+            players[playersArray[i]] = createPlayer(playersArray[i]);
             var node = document.createElement ("span");
             var text = document.createTextNode (playersArray[i]);
             node.id = "User_" + playersArray[i];
@@ -206,7 +367,7 @@ function listPlayers (playersArray) {
             $("#gamePlayers").append(node);
         }
     }
-    $("#content").fadeIn();
+    $("#contentWithBoard").fadeIn();
 }
 
 socket.on ("playerLeft", function (data) {
@@ -215,9 +376,9 @@ socket.on ("playerLeft", function (data) {
 });
 
 socket.on ("newPlayer", function (data) {
-    serverMessage (data + " has joined the game.");
     if (document.getElementById("User_" + data) == null) {
-        
+        serverMessage (data + " has joined the game.");
+        players[data] = createPlayer(data);
         var node = document.createElement ("span");
         var text = document.createTextNode (data);
         node.id = "User_" + data;
@@ -227,72 +388,172 @@ socket.on ("newPlayer", function (data) {
     }
     else {
         $("#gamePlayers").children("#User_" + data).css("text-decoration", "none");
+        serverMessage (data + " has rejoined the game.");
     }    
 });
 
 socket.on ("yourTurn", function () {
     myTurn = true;
+    haveRolled = false;
     $("#rollDiceButton").prop("disabled", false);
 });
 
 socket.on ("diceRollResult", function (data) {
-    //CALL MOVE PLAYER FUNCTIONS
-    players.push(player(document.getElementById ("player1"))); ///TO-DO - THIS NEEDS TO BE ADJUSTED, IT'S IN A SHIT POSITION AND NEEDS TO BE BETTER IMPLEMENTED, JUST HERE FOR DEMO PURPOSES
     var total = data.firstDice + data.secondDice;
     $(".dice").fadeOut (function () {
         $("#firstDice").children("div").html (diceUnicode[data.firstDice]);
         $("#secondDice").children("div").html (diceUnicode[data.secondDice]);
         $(".dice").fadeIn ();
     });
-    callMovePlayer (total);
+    players[data.player].id = data.icon;
+    $("#" + data.icon).attr ("title", data.player);
+    movePlayer (players[data.player], total);
 })
 
 //First attempt using Philip's move functions
-function callMovePlayer (roll) {
-    if(players[turn].inJail == 0 && roll % 2 == 0) {
-        doubles[turn]++;
-        if(doubles[turn] == 3) {
-            //Put player in jail
-            players[turn].inJail = 1;
-            //The position of jail isLocje 0010
-            players[turn].position = "0010";
-            //Putting the player in the jail tile
-            document.getElementById(players[turn].position).appendChild(players[turn].icon);
-            if(turn == 3) {
-                turn = 0;
-            } else {
-                turn++;
-            }
-        } else {
-            //They've rolled a double but not their third, so they can go again
-            movePlayer(players[turn].icon, roll, turn);
+// function callMovePlayer (roll) {
+//     if(players[turn].inJail == 0 && roll % 2 == 0) {
+//         doubles[turn]++;
+//         if(doubles[turn] == 3) {
+//             //Put player in jail
+//             players[turn].inJail = 1;
+//             //The position of jail isLocje 0010
+//             players[turn].position = "0010";
+//             //Putting the player in the jail tile
+//             document.getElementById(players[turn].position).appendChild(players[turn].icon);
+//             if(turn == 3) {
+//                 turn = 0;
+//             } else {
+//                 turn++;
+//             }
+//         } else {
+//             //They've rolled a double but not their third, so they can go again
+//             movePlayer(players[turn].icon, roll, turn);
+//         }
+//     //Otherwise they're either not in jail or they get out of jail
+//     } else if(players[turn].inJail == 0 || roll == 10 || players[turn].inJail == 3) {
+//         doubles[turn] = 0;
+//         //Check here if they are out of jail anyway so they don't get to roll again
+//         if(players[turn].inJail > 0) {
+//             if(players[turn].jail == 3) {
+//                 console.log("Pay the toll troll");
+//             }
+//             players[turn].inJail = 0;
+//         }
+//         movePlayer(players[turn].icon, roll, turn);
+//         if(turn == 3) {
+//             turn = 0;
+//         } else {
+//             turn++;
+//         }
+//     } else {
+//         //Otherwise they spend another turn in jail
+//         players[turn].inJail++;
+//         if(turn == 3) {
+//             turn = 0;
+//         } else {
+//             turn++;
+//         }
+//     }
+// }
+
+async function movePlayer(playerObj, spacesToMove) {//, turn) {
+    //Gets first two numbers in the id
+    var left = parseInt(playerObj.position.substring(0, 2));
+    //Gets the last two numbers in the id
+    var right = parseInt(playerObj.position.substring(2, 4));
+    var newPosition; //The position they finish on
+    //Deciding how the player's icon should move based on their position on the board
+    while(spacesToMove > 0) {
+        if(left == 0 && right < 10) {
+            right++;
+        } else if(right == 10 && left < 10) {
+            left++;
+        } else if(left == 10 && right > 0) {
+            right--;
+        } else if(right == 0 && left > 0) {
+            left--;
         }
-    //Otherwise they're either not in jail or they get out of jail
-    } else if(players[turn].inJail == 0 || roll == 10 || players[turn].inJail == 3) {
-        doubles[turn] = 0;
-        //Check here if they are out of jail anyway so they don't get to roll again
-        if(players[turn].inJail > 0) {
-            if(players[turn].jail == 3) {
-                console.log("Pay the toll troll");
-            }
-            players[turn].inJail = 0;
-        }
-        movePlayer(players[turn].icon, roll, turn);
-        if(turn == 3) {
-            turn = 0;
-        } else {
-            turn++;
-        }
-    } else {
-        //Otherwise they spend another turn in jail
-        players[turn].inJail++;
-        if(turn == 3) {
-            turn = 0;
-        } else {
-            turn++;
+        //Getting the player's new position back into the "xxxx" format
+        newPosition = positionHack(left, right);
+        spacesToMove--;
+        //Placing the player's icon on the new tile
+        document.getElementById(newPosition).appendChild(document.getElementById (playerObj.id));
+        //Waiting for half a second so it looks nicer
+        await sleep(500);
+        //walkSound.play();
+        if(newPosition == "0000") {
+            //console.log("Player has passed go; collect 200");
+            alert("Player has passed go; collect 200");
         }
     }
+
+    //Updating player's position
+    playerObj.position = newPosition;
+    //Checking for what tile they land on, currently only says "This tile is x, etc", Sean
+    //and Dave are working on that I believe
+    
+    
+    //checkTile(newPosition);
+    
+    
+    //if(decidingOnProperty) {
+    //diceFadeOut();
+    //}
+    if (myTurn && haveRolled) {
+        endTurn ();
+    }
+    return;
 }
+
+// function checkTile(playerPos) {
+//     //decidingOnProperty = true;
+//     //walkSound.pause();
+//     //console.log(playerPos);
+//     alert("Player position: " + playerPos);
+//     if(playerPos == "0010" || playerPos == "0000") {
+//         decideOnNextPlayer();
+//         //This is the jail tile, do nothing
+//     } else if(playerPos == "0007" || playerPos == "1008" || playerPos == "0400") {
+//         //Player has landed on chance card
+//         //console.log("Draw chance card");
+//         //decidingOnProperty = true;
+//         alert("Draw chance card");
+//         getChanceCard();
+//     } else if(playerPos == "0002" || playerPos == "0710" || playerPos == "0700") {
+//         //Player has landed on community chess
+//         //console.log("Draw community chest card");
+//         alert("Draw community chest card");
+//         getCommChestCard();
+//     } else if(playerPos == "1010") {
+//         //Player has landed on Free Parking
+//         //console.log("Free Parking");
+//         landedOnKitty(players[turn]);
+//     } else if(playerPos == "1000") {
+//         //Player is sent to jail
+//         //console.log("Player is sent to jail");
+//         alert("player is sent to jail");
+//         placeInJail();
+//         //decideOnNextPlayer();
+//     } else if(playerPos == "0004" || playerPos == "0200") {
+//         //console.log("Player pays a tax");
+//         playerFined(players[turn], playerPos);
+//         //decideOnNextPlayer();
+//     } else { 
+//         isOwned(players[turn], playerPos);
+//     }
+
+//     //Will probably have to put this somewhere else
+//     /*if(endTurnAllowed) {
+//         if(!rolledDouble) {
+//             document.getElementById("endTurn").removeAttribute("disabled");
+//         } else {
+//             playerRolledDouble();
+//         }
+//     }*/
+// }
+
+
 
 function positionHack(left, right) {
     var leftFixed;
@@ -318,50 +579,30 @@ function sleep(ms) {
 }
 //End first attempt
 
-async function movePlayer(playr, spacesToMove, turn) { //async
-    //Gets first two numbers in the id
-    var left = parseInt(players[turn].position.substring(0, 2));
-    //Gets the last two numbers in the id
-    var right = parseInt(players[turn].position.substring(2, 4));
-    var newPosition;
-    while(spacesToMove > 0) {
-        if(left == 0 && right < 10) {
-            right++;
-        } else if(right == 10 && left < 10) {
-            left++;
-        } else if(left == 10 && right > 0) {
-            right--;
-        } else if(right == 0 && left > 0) {
-            left--;
-        }
-        newPosition = positionHack(left, right);
-        spacesToMove--;
-        document.getElementById(newPosition).appendChild(playr);
-        await sleep(500);
-    }
-
-    players[turn].position = newPosition;
-    endTurn ();    
-}
-
 function endTurn () {
-    if (myTurn) {
+    if (myTurn && haveRolled) {
         var prompt = document.createElement ("div");
         prompt.className = "endTurnPrompt";
-        $(prompt).hide().appendTo("#content").fadeIn();
-        $(".endTurnPrompt").html ("<div><button id='endItAll'>End it all</button></div>");
+        $(prompt).hide().appendTo("#contentWithBoard").fadeIn();
+        $(".endTurnPrompt").html ("<div><button id='endItAll'>End your turn</button></div>");
         $("#endItAll").click (function () {
             $(".endTurnPrompt").fadeOut(function () {
                 $(".endTurnPrompt").remove();
                 socket.emit ("turnEnded", "true");
+                myTurn = false;
+                haveRolled = true;
+                return;
             });            
         });
         window.setTimeout (function () {
-            myTurn = false;
-            socket.emit ("turnEnded", "true");
+            if (myTurn && haveRolled) {
+                socket.emit ("turnEnded", "true");
+                myTurn = false;
+                haveRolled = true;
+            }            
             $(".endTurnPrompt").fadeOut(function () {
                 $(".endTurnPrompt").remove();
-                socket.emit ("turnEnded", "true");
+                return;
             });
         }, 5000);
     }

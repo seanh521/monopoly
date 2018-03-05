@@ -7,6 +7,8 @@ var users = {}; //Key: username, Value: socket
 var onlinePlayers = {};
 var games = {};
 var freeGames = [];
+var playerIcons = ["player1", "player2", "player3", "player4"];
+var playerIconIndex = 0;
 
 app.use(express.static('public'));
 //app.set('view engine', 'ejs');
@@ -35,7 +37,7 @@ function createPlayerProfile (name, socket) {
 function createNewPlayer (name, socket) {
     var player = {};
     player.name = name;
-    player.id = null; //ID attribute of player icon
+    player.id = playerIcons[playerIconIndex]; //ID attribute of player icon
     player.position = "0000";
     player.doublesRolled = 0;
     player.socket = socket;
@@ -60,6 +62,8 @@ function createNewPlayer (name, socket) {
     player.jail.jailRoll = 0;
     player.jail.justReleased = false;
 
+    playerIconIndex ++;
+
     return player;
 }
 
@@ -72,7 +76,8 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     else {
         game.name = name;
     }    
-    game.players = [];
+    // game.players = [];
+    game.players = {};
     game.playerNames = [];
     game.playerTurnIndex = 0;
     game.playerCount = 0;
@@ -82,10 +87,12 @@ function createNewGame (name, maxPlayers, isLocked, password) {
     game.isFull = false;
 
     game.join = function (name, socket) {
-        game.players.push(createNewPlayer(name, socket));
+        var newPlayer = createNewPlayer(name, socket);
+        //game.players.push(newPlayer);
+        game.players[name] = newPlayer;
         game.playerNames.push(name);
         game.playerCount ++;
-        game.broadcastToPlayers ("newPlayer", name);
+        game.broadcastToPlayers ("newPlayer", newPlayer.name);
         if (game.playerCount == 1) {
             game.playerTurnIndex = -1;
             game.nextPlayer ();
@@ -99,9 +106,10 @@ function createNewGame (name, maxPlayers, isLocked, password) {
         else {
             game.playerTurnIndex = 0;
         }
-        console.log(game.playerTurnIndex);
         console.log ("Sending turn to " + game.playerNames[game.playerTurnIndex] + " at " + users[game.playerNames[game.playerTurnIndex]].id +  " (" + new Date().toLocaleTimeString() + ")");
-        users[game.playerNames[game.playerTurnIndex]].emit("yourTurn", "true");
+        setTimeout (function () {
+            users[game.playerNames[game.playerTurnIndex]].emit("yourTurn", "true");
+        }, 500);
     }
 
     game.getPlayers = function () {
@@ -115,11 +123,11 @@ function createNewGame (name, maxPlayers, isLocked, password) {
                 game.playerCount --;
                 game.broadcastToPlayers ("playerLeft", game.players[i].name);
                 delete game.players[i];
-                game.players.filter(Boolean);
-                delete game.playerNames[i];
+                //game.players.filter(Boolean);
+                delete game.playerNames[username];
                 game.playerNames.filter(Boolean);          
                 if (game.playerCount == 0) {
-                    game.players = [];
+                    game.players = {};
                     game.playerNames = [];
                 }
             }
@@ -134,7 +142,7 @@ function createNewGame (name, maxPlayers, isLocked, password) {
                     io.sockets.connected[users[game.playerNames[i]].id].emit(event, data);
                 }
                 catch (err) {
-                    console.log ("There was an error trying to broadcast to " + game.playerNames[i] + ". (" + err.message + ")");
+                    console.log ("There was an error trying to broadcast to " + game.playerNames[i] + ". (" + err.message + " - broadcastToPlayers)");
                 }
             }
         }
@@ -151,7 +159,7 @@ function createNewGame (name, maxPlayers, isLocked, password) {
                     io.sockets.connected[users[game.playerNames[i]].id].emit("gameChat", data);
                 }
                 catch (err) {
-                    console.log ("There was an error trying to broadcast to " + game.playerNames[i] + "(" + err.message + ")");
+                    console.log ("There was an error trying to broadcast to " + game.playerNames[i] + "(" + err.message + ") - chat");
                 }
             }
         }
@@ -193,7 +201,6 @@ io.on('connection', function (socket){
     });
 
     socket.on ('createGame', function (data) {
-        console.log (data);
         var newGame = createNewGame (data.gameName, data.maxPlayers, data.isPrivate, data.password);
         games[newGame.id] = newGame;
         freeGames.push (newGame.id);
@@ -240,11 +247,14 @@ io.on('connection', function (socket){
         }
         else {
             data.isDouble = false;
-        }        
+        }
+        data.player = usersSockets[socket.id]
+        data.icon = games[onlinePlayers[usersSockets[socket.id]].currentGameID].players[usersSockets[socket.id]].id;
         games[onlinePlayers[usersSockets[socket.id]].currentGameID].broadcastToPlayers ("diceRollResult", data);
     });
 
     socket.on ("turnEnded", function () {
+        console.log (usersSockets[socket.id] + " has ended their turn");
         games[onlinePlayers[usersSockets[socket.id]].currentGameID].nextPlayer ();
     });
 

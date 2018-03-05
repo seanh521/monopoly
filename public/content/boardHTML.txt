@@ -310,9 +310,9 @@
 
                     <!-- <div> -->
                         <img class="player" src="images/boot.png" alt="Player1" id="player1">
-                        <!-- <img class = "player" src="images/car.png" alt="Player2" id="player2">
+                        <img class = "player" src="images/car.png" alt="Player2" id="player2">
                         <img class = "player" src="images/hat.png" alt="Player3" id="player3">
-                        <img class = "player" src="images/ship.png" alt="Player4" id="player4"> -->
+                        <img class = "player" src="images/ship.png" alt="Player4" id="player4">
                     <!-- </div> -->
                 </td>
             </tr>
